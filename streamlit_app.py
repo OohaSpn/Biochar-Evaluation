@@ -74,24 +74,26 @@ with st.expander("Data Visualizations"):
     # Display the plot in Streamlit
     st.pyplot(fig)
 
-# Add description below the visualization
-st.info('Boxplots help identify outliers and show how the data is distributed. Here some columns are skewed to the right. While a few points appear beyond the upper whisker, they aren\'t considered outliers since biochar properties depend on pyrolysis conditions.')
-  st.write('Distribution After Applying Log Transformation to Skewed Data')
+    # Add description below the visualization
+    st.info('Boxplots help identify outliers and show how the data is distributed. Here some columns are skewed to the right. While a few points appear beyond the upper whisker, they aren\'t considered outliers since biochar properties depend on pyrolysis conditions.')
 
-# Apply log transformation to skewed data
-df['Time_log'] = np.log(df['Time (min)'] + 1)  # Add 1 to avoid log(0)
-df['BET_log'] = np.log(df['BET'] + 1)
-df['PS_log'] = np.log(df['PS'] + 1) 
+    st.write('Distribution After Applying Log Transformation to Skewed Data')
 
-# Create a figure with subplots for the log-transformed distributions
-fig, axes = plt.subplots(1, 3, figsize=(20, 5))  # Adjust the number of subplots as needed
-sns.histplot(df['Time_log'], kde=True, ax=axes[0])
-axes[0].set_title('Log-Transformed Distribution of Time (min)')
-sns.histplot(df['BET_log'], kde=True, ax=axes[1])
-axes[1].set_title('Log-Transformed Distribution of BET')
-sns.histplot(df['PS_log'], kde=True, ax=axes[2])  # Changed to 2 for correct indexing
-axes[2].set_title('Log-Transformed Distribution of PS')
+    # Apply log transformation to skewed data
+    df['Time_log'] = np.log(df['Time (min)'] + 1)  # Add 1 to avoid log(0)
+    df['BET_log'] = np.log(df['BET'] + 1)
+    df['PS_log'] = np.log(df['PS'] + 1) 
 
-# Adjust layout and display in Streamlit
-plt.tight_layout()
-st.pyplot(fig)
+    # Create a figure with subplots for the log-transformed distributions
+    fig, axes = plt.subplots(1, 3, figsize=(20, 5))  # Adjust the number of subplots as needed
+    sns.histplot(df['Time_log'], kde=True, ax=axes[0])
+    axes[0].set_title('Log-Transformed Distribution of Time (min)')
+    sns.histplot(df['BET_log'], kde=True, ax=axes[1])
+    axes[1].set_title('Log-Transformed Distribution of BET')
+    sns.histplot(df['PS_log'], kde=True, ax=axes[2])  # Changed to 2 for correct indexing
+    axes[2].set_title('Log-Transformed Distribution of PS')
+
+    # Adjust layout and display in Streamlit
+    plt.tight_layout()
+    st.pyplot(fig)
+
