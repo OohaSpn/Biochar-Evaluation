@@ -73,3 +73,4 @@ with st.expander("Data Visualizations"):
 
     # Display the plot in Streamlit
     st.pyplot(fig)
+  st.info('Boxplots help identify outliers and show how the data is distributed. Some columns are skewed to the right. While a few points appear beyond the upper whisker, they aren't considered outliers since biochar properties depend on pyrolysis conditions.')
