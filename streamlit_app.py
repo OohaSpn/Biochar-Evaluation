@@ -3,8 +3,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
-from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import KFold, GridSearchCV
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import make_scorer, mean_absolute_percentage_error, mean_squared_error
 
 st.title('Evaluating Biochar')
 st.info('')
@@ -108,13 +110,70 @@ with st.expander("Data Visualizations"):
     sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f", linewidths=0.5, cbar=True)
     st.pyplot(fig)
     st.info("There is a positive correlation between PV and BET with correlation value 0.67")
-    label_encoder = LabelEncoder()
-    df['raw_material'] = label_encoder.fit_transform(df['raw_material'])
-    columns = ['TemP', 'Time_log', 'PS_log', 'BET_log', 'PV', 'C', 'H', 'N', 'O', 'Qm (mg/g)', 
-                   'raw_material']
-    scaler = StandardScaler()
+    # Preprocessing the data
+label_encoder = LabelEncoder()
+df['raw_material'] = label_encoder.fit_transform(df['raw_material'])
+columns = ['TemP', 'Time_log', 'PS_log', 'BET_log', 'PV', 'C', 'H', 'N', 'O', 'Qm (mg/g)', 'raw_material']
+scaler = StandardScaler()
 
-    # Apply standardization to the selected columns
-    df[columns] = scaler.fit_transform(df[columns])
+# Apply standardization to the selected columns
+df[columns] = scaler.fit_transform(df[columns])
+df = df[columns]
+X = df.drop(columns=['Qm (mg/g)'])  # Drop target column
+y = df['Qm (mg/g)']  # Target column
 
+# Streamlit Expander for Model Training
+with st.expander("Model Training"):
+    st.write("Training a Random Forest Regressor model with GridSearchCV for hyperparameter tuning.")
 
+    # Set up K-Fold cross-validation and grid search parameters
+    k_folds = KFold(n_splits=5)
+    param_rf = {
+        'n_estimators': [15, 25, 50, 100, 150],
+        'max_depth': [None, 6, 8],
+        'min_samples_split': [2, 4],
+        'min_samples_leaf': [1, 2, 4]
+    }
+    
+    rf_regressor = RandomForestRegressor(random_state=42)
+
+    grid_search = GridSearchCV(
+        estimator=rf_regressor,
+        param_grid=param_rf,
+        scoring={'neg_mean_squared_error': 'neg_mean_squared_error', 'mape': make_scorer(mape_scorer)},
+        refit="neg_mean_squared_error",
+        cv=5,
+        verbose=1,
+        n_jobs=-1
+    )
+
+    # Perform the grid search
+    grid_search.fit(X, y)
+    
+    # Display best parameters found by GridSearchCV
+    best_params = grid_search.best_params_
+    st.write("Best Hyperparameters:", best_params)
+
+# Model Evaluation
+with st.expander("Model Evaluation"):
+    st.write("Evaluating model performance using the cross-validation results.")
+
+    # Extract cross-validation results
+    cv_results = pd.DataFrame(grid_search.cv_results_)
+    
+    # Calculate MAPE and RMSE
+    rf_mape = cv_results['mean_test_mape']
+    rf_rmse = np.sqrt(cv_results['mean_test_neg_mean_squared_error'] * -1)
+    
+    # Calculate mean scores
+    mean_rf_mape = rf_mape.mean()
+    mean_rf_rmse = rf_rmse.mean()
+    
+    st.write(f"Tuned MAPE score: {mean_rf_mape:.4f}")
+    st.write(f"Tuned RMSE score: {mean_rf_rmse:.4f}")
+    
+    # Optional: Display the complete cross-validation results in a table
+    st.write("Cross-validation Results:")
+    st.dataframe(cv_results[['param_n_estimators', 'param_max_depth', 'param_min_samples_split', 'param_min_samples_leaf', 'mean_test_mape', 'mean_test_neg_mean_squared_error']])
+
+    
