@@ -27,7 +27,7 @@ with st.expander('Data'):
   
 # Input features in the sidebar
 with st.sidebar:
-    st.header('Input features')
+    st.header('Input feature For Biomass')
     # Dropdown menu for 'raw_material'
     raw_material = st.selectbox(
         'Select Raw Material',
@@ -40,8 +40,8 @@ filtered_df = df[df['raw_material'] == raw_material]
 # Display the filtered data
 st.write(f"Filtered data for raw_material: **{raw_material}**")
 st.dataframe(filtered_df)
-with st.sidebar:
-    st.header('Input features')
+
+    st.header('Input feature for Type of Pollutant')
     # Dropdown menu for 'TP'
     tp_value = st.selectbox(
         'Select TP Value',
