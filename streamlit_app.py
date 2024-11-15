@@ -100,7 +100,7 @@ with st.expander("Data Visualizations"):
     st.pyplot(fig)
     df = df.drop(['Time' , 'BET' , 'PS'], axis = 1)
     st.write("Pearson Correlation Between Features")
-    updated_columns = ['TemP', 'Time_log', 'PS_log', 'BET_log', 'PV, 'C', 'H', 'N', 'O', 'Qm (mg/g)']
+    updated_columns = ['TemP', 'Time_log', 'PS_log', 'BET_log', 'PV', 'C', 'H', 'N', 'O', 'Qm (mg/g)']
     corr_matrix = df[updated_columns].corr()
     fig, ax = plt.subplots(figsize=(10, 8))
     sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f", linewidths=0.5, cbar=True)
