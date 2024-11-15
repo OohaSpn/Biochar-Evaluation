@@ -79,7 +79,7 @@ with st.expander("Data Visualizations"):
     # Add description below the visualization
     st.info('Boxplots help identify outliers and show how the data is distributed. Here some columns are skewed to the right. While a few points appear beyond the upper whisker, they aren\'t considered outliers since biochar properties depend on pyrolysis conditions.')
 
-    st.write('Distribution After Applying Log Transformation to Skewed Data')
+    st.write('Distribution After Applying 'Log' to Skewed Data')
 
     # Apply log transformation to skewed data
     df['Time_log'] = np.log(df['Time (min)'] + 1)  # Add 1 to avoid log(0)
@@ -97,5 +97,12 @@ with st.expander("Data Visualizations"):
 
     # Adjust layout and display in Streamlit
     plt.tight_layout()
+    st.pyplot(fig)
+    df = df.drop(['Time' , 'BET' , 'PS'], axis = 1)
+    st.write("Pearson Correlation Between Features")
+    updated_columns = ['TemP', 'Time_log', 'PS_log', 'BET_log', 'PV, 'C', 'H', 'N', 'O', 'Qm (mg/g)']
+    corr_matrix = df[updated_columns].corr()
+    fig, ax = plt.subplots(figsize=(10, 8))
+    sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f", linewidths=0.5, cbar=True)
     st.pyplot(fig)
 
