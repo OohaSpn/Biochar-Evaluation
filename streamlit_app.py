@@ -54,3 +54,21 @@ with st.expander("Filtered Data"):
 
     st.write(f"Filtered data for TP: **{tp_value}**")
     st.dataframe(filtered_df_tp)
+with st.expander("Data Visualizations"):
+    st.write("Boxplot for Each Column")
+    
+    # Create a figure with subplots
+    fig, axes = plt.subplots(nrows=2, ncols=5, figsize=(15, 8))  # Adjust rows and columns as needed
+    axes = axes.flatten()  # Flatten the 2D axes array to make indexing easier
+
+    # Loop through the columns and plot each one in a separate subplot
+    for i, column in enumerate(numeric_columns):
+        df.boxplot(column=column, ax=axes[i])
+        axes[i].set_title(f'Box plot for {column}')
+        axes[i].set_xlabel('')
+
+    # Adjust layout
+    plt.tight_layout()
+
+    # Display the plot in Streamlit
+    st.pyplot(fig)
