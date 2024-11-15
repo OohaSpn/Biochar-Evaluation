@@ -25,23 +25,18 @@ with st.expander('Data'):
   y_raw = df['Qm (mg/g)']
   y_raw
   
+# Input features in the sidebar
 with st.sidebar:
     st.header('Input features')
-    
     # Dropdown menu for 'raw_material'
-    Biomass = st.selectbox(
-        'Raw Material', 
-        ('paper', 'biological', 'pinewood', 'plant', 'stalk', 'leaves', 'waste', 'straw',
-         'sawdust', 'hysterophorus', 'sludge', 'clay', 'activation', 'feathers',
-         'biochar', 'roots', 'shell', 'dealbata', 'manure', 'eucalyptus', 'tree', 'quince',
-         'vine', 'microalgae', 'alfalfa', 'fecl3', 'grounds', 'chips', 'natan',
-         'sediment', 'malaianus', 'crispus', 'pharmaceutical', 'pristine')
+    raw_material = st.selectbox(
+        'Select Raw Material',
+        df['raw_material'].unique()  # Populate options dynamically
     )
-    
-    # Create a DataFrame for the input features
-    data = {'raw_material': [Biomass]}  # Use a list to create a DataFrame
-    input_df = pd.DataFrame(data)
-    
-    # Combine with the raw dataset (if needed)
-    input_penguins = pd.concat([input_df, X_raw], axis=0)
-input_penguins
+
+# Filter the dataset based on the selected raw_material
+filtered_df = df[df['raw_material'] == raw_material]
+
+# Display the filtered data
+st.write(f"Filtered data for raw_material: **{raw_material}**")
+st.dataframe(filtered_df)
