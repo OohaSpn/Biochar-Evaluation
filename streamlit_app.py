@@ -112,7 +112,7 @@ with st.expander("Data Visualizations"):
     X = df.drop(columns=['Qm (mg/g)'])  # Drop target column
     y = df['Qm (mg/g)']  # Target column
     # Display the preprocessed X and y in Streamlit for checking
-with st.expander('Preprocessed Data (X, y)'):
+ with st.expander('Preprocessed Data (X, y)'):
     st.write('**X (Features)**')
     st.dataframe(X)
 
