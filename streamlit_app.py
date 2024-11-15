@@ -12,5 +12,5 @@ with st.expander('Data'):
   numeric_columns = ['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'N', 'H', 'O', 'Qm (mg/g)']
   numeric_columns
   st.write('**Categorical Columns**')
-  cat_columns = ['raw_material', 'TP'
+  cat_columns = ['raw_material', 'TP']
   cat_columns
