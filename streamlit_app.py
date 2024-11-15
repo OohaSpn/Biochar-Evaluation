@@ -79,7 +79,7 @@ with st.expander("Data Visualizations"):
     # Add description below the visualization
     st.info('Boxplots help identify outliers and show how the data is distributed. Here some columns are skewed to the right. While a few points appear beyond the upper whisker, they aren\'t considered outliers since biochar properties depend on pyrolysis conditions.')
 
-    st.write('Distribution After Applying \'Log'\ to Skewed Data')
+    st.write('Distribution After Applying Log to Skewed Data')
 
     # Apply log transformation to skewed data
     df['Time_log'] = np.log(df['Time (min)'] + 1)  # Add 1 to avoid log(0)
