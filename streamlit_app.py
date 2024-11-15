@@ -26,15 +26,21 @@ with st.expander('Data'):
   y_raw
   
 with st.sidebar:
-  st.header('Input features')
-  Biomass = st.selectbox('raw_material', ('paper' 'biological' 'pinewood' 'plant' 'stalk' 'leaves' 'waste' 'straw'
- 'sawdust' 'hysterophorus' 'sludge' 'clay' 'activation' 'feathers'
- 'biochar' 'roots' 'shell' 'dealbata' 'manure' 'eucalypus' 'tree' 'quince'
- 'vine' 'microalgae' 'alfalfa' 'fecl3' 'grounds' 'chips' 'natan'
- 'sediment' 'malaianus' 'crispus' 'pharmaceutical' 'pristine'))
-  
-  # Create a DataFrame for the input features
-  data = {'Biomass': Biomass
-          }
-  input_df = pd.DataFrame(data, index=[0])
-  input_penguins = pd.concat([input_df, X_raw], axis=0)
+    st.header('Input features')
+    
+    # Dropdown menu for 'raw_material'
+    Biomass = st.selectbox(
+        'Raw Material', 
+        ('paper', 'biological', 'pinewood', 'plant', 'stalk', 'leaves', 'waste', 'straw',
+         'sawdust', 'hysterophorus', 'sludge', 'clay', 'activation', 'feathers',
+         'biochar', 'roots', 'shell', 'dealbata', 'manure', 'eucalyptus', 'tree', 'quince',
+         'vine', 'microalgae', 'alfalfa', 'fecl3', 'grounds', 'chips', 'natan',
+         'sediment', 'malaianus', 'crispus', 'pharmaceutical', 'pristine')
+    )
+    
+    # Create a DataFrame for the input features
+    data = {'raw_material': [Biomass]}  # Use a list to create a DataFrame
+    input_df = pd.DataFrame(data)
+    
+    # Combine with the raw dataset (if needed)
+    input_penguins = pd.concat([input_df, X_raw], axis=0)
