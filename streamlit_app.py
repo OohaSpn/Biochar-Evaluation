@@ -3,6 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import LabelEncoder
 
 st.title('Evaluating Biochar')
 st.info('')
@@ -100,9 +102,19 @@ with st.expander("Data Visualizations"):
     st.pyplot(fig)
     df = df.drop(['Time (min)' , 'BET' , 'PS'], axis = 1)
     st.write("Pearson Correlation Between Features")
-    updated_columns = ['TemP', 'Time_log', 'PS_log', 'BET_log', 'PV', 'C', 'H', 'N', 'O', 'Qm (mg/g)']
-    corr_matrix = df[updated_columns].corr()
+    numeric_columns = ['TemP', 'Time_log', 'PS_log', 'BET_log', 'PV', 'C', 'H', 'N', 'O', 'Qm (mg/g)']
+    corr_matrix = df[numeric_columns].corr()
     fig, ax = plt.subplots(figsize=(10, 8))
     sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f", linewidths=0.5, cbar=True)
     st.pyplot(fig)
+    st.info("There is a positive correlation between PV and BET with correlation value 0.67")
+    label_encoder = LabelEncoder()
+    df['raw_material'] = label_encoder.fit_transform(df['raw_material'])
+    columns = ['TemP', 'Time_log', 'PS_log', 'BET_log', 'PV', 'C', 'H', 'N', 'O', 'Qm (mg/g)', 
+                   'raw_material']
+    scaler = StandardScaler()
+
+    # Apply standardization to the selected columns
+    df[columns] = scaler.fit_transform(df[columns])
+
 
