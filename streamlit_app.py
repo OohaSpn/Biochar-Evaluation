@@ -34,23 +34,23 @@ with st.sidebar:
         df['raw_material'].unique()  # Populate options dynamically
     )
 
-# Filter the dataset based on the selected raw_material
-filtered_df = df[df['raw_material'] == raw_material]
-
-# Display the filtered data
-st.write(f"Filtered data for raw_material: **{raw_material}**")
-st.dataframe(filtered_df)
-with st.sidebar:
-  st.header('Input feature for Type of Pollutant')
+    st.header('Input feature for Type of Pollutant')
     # Dropdown menu for 'TP'
-  tp_value = st.selectbox(
-        'Select TP Value',
+    tp_value = st.selectbox(
+        'Select TP',
         df['TP'].unique()  # Populate options dynamically
     )
 
-# Filter the dataset based on the selected TP value
-filtered_df = df[df['TP'] == tp_value]
+# Filter the dataset based on the selected raw_material
+filtered_df_biomass = df[df['raw_material'] == raw_material]
 
-# Display the filtered data
-st.write(f"Filtered data for TP: **{tp_value}**")
-st.dataframe(filtered_df)
+# Filter the dataset based on the selected TP value
+filtered_df_tp = df[df['TP'] == tp_value]
+
+# Expander to display filtered data
+with st.expander("Filtered Data"):
+    st.write(f"Filtered data for raw_material: **{raw_material}**")
+    st.dataframe(filtered_df_biomass)
+
+    st.write(f"Filtered data for TP: **{tp_value}**")
+    st.dataframe(filtered_df_tp)
