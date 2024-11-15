@@ -40,10 +40,9 @@ filtered_df = df[df['raw_material'] == raw_material]
 # Display the filtered data
 st.write(f"Filtered data for raw_material: **{raw_material}**")
 st.dataframe(filtered_df)
-
-    st.header('Input feature for Type of Pollutant')
+st.header('Input feature for Type of Pollutant')
     # Dropdown menu for 'TP'
-    tp_value = st.selectbox(
+tp_value = st.selectbox(
         'Select TP Value',
         df['TP'].unique()  # Populate options dynamically
     )
