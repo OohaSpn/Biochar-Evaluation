@@ -98,7 +98,7 @@ with st.expander("Data Visualizations"):
     # Adjust layout and display in Streamlit
     plt.tight_layout()
     st.pyplot(fig)
-    df = df.drop(['Time' , 'BET' , 'PS'], axis = 1)
+    df = df.drop(['Time (min)' , 'BET' , 'PS'], axis = 1)
     st.write("Pearson Correlation Between Features")
     updated_columns = ['TemP', 'Time_log', 'PS_log', 'BET_log', 'PV', 'C', 'H', 'N', 'O', 'Qm (mg/g)']
     corr_matrix = df[updated_columns].corr()
