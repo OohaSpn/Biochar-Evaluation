@@ -22,5 +22,19 @@ with st.expander('Data'):
   X_raw
 
   st.write('**y**')
-  y_raw = df.Qm (mg/g)
+  y_raw = df['Qm (mg/g)']
   y_raw
+  
+with st.sidebar:
+  st.header('Input features')
+  Biomass = st.selectbox('raw_material', ('paper' 'biological' 'pinewood' 'plant' 'stalk' 'leaves' 'waste' 'straw'
+ 'sawdust' 'hysterophorus' 'sludge' 'clay' 'activation' 'feathers'
+ 'biochar' 'roots' 'shell' 'dealbata' 'manure' 'eucalypus' 'tree' 'quince'
+ 'vine' 'microalgae' 'alfalfa' 'fecl3' 'grounds' 'chips' 'natan'
+ 'sediment' 'malaianus' 'crispus' 'pharmaceutical' 'pristine'))
+  
+  # Create a DataFrame for the input features
+  data = {'Biomass': Biomass
+          }
+  input_df = pd.DataFrame(data, index=[0])
+  input_penguins = pd.concat([input_df, X_raw], axis=0)
