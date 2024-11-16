@@ -94,7 +94,8 @@ with st.expander("Data Visualizations"):
     
     # Pearson Correlation
     st.write("Pearson Correlation Between Features")
-    corr_matrix = df[numeric_columns].corr()
+    columns = ['TemP', 'Time_log', 'PS_log', 'BET_log', 'PV', 'C', 'H', 'N', 'O', 'Qm (mg/g)', 'raw_material']
+    corr_matrix = df[columns].corr()
     fig, ax = plt.subplots(figsize=(10, 8))
     sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f", linewidths=0.5, cbar=True)
     st.pyplot(fig)
