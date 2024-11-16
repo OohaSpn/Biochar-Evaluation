@@ -145,24 +145,38 @@ with st.expander("Model Training"):
     st.write("Initial Parameters for Tuning:", param_rf)
     st.write("Best Hyperparameters:", best_params)
 
-# Model Evaluation
-with st.expander("Model Evaluation"):
-    st.write("Evaluating model performance using the cross-validation results.")
+# K-Fold Cross-Validation with Best Model
+with st.expander("K-Fold Cross-Validation Results"):
+    st.write("Evaluating model performance with K-Fold cross-validation.")
+    k_rf_mape = cross_val_score(grid_search.best_estimator_, X, y, cv=k_folds, scoring=mape_scorer) * -1
+    k_rf_rmse = np.sqrt(-cross_val_score(grid_search.best_estimator_, X, y, cv=k_folds, scoring="neg_mean_squared_error"))
 
-    # Extract cross-validation results
-    cv_results = pd.DataFrame(grid_search.cv_results_)
-    
-    # Calculate MAPE and RMSE
-    rf_mape = cv_results['mean_test_mape'] * -1
-    rf_rmse = np.sqrt(cv_results['mean_test_neg_mean_squared_error'] * -1)
-    
-    # Calculate mean scores
-    mean_rf_mape = rf_mape.mean()
-    mean_rf_rmse = rf_rmse.mean()
-    
-    st.write(f"Tuned MAPE score: {mean_rf_mape:.4f}")
-    st.write(f"Tuned RMSE score: {mean_rf_rmse:.4f}")
-    
-    # Optional: Display the complete cross-validation results in a table
-    st.write("Cross-validation Results:")
-   
+    st.write(f"Mean K-Fold MAPE: {np.mean(k_rf_mape):.4f}")
+    st.write(f"Mean K-Fold RMSE: {np.mean(k_rf_rmse):.4f}")
+
+# User File Upload
+with st.expander("Predict Using Your Data"):
+    uploaded_file = st.file_uploader("Upload your CSV file for predictions:", type=["csv"])
+    if uploaded_file:
+        user_df = pd.read_csv(uploaded_file)
+        st.write("Uploaded Data:")
+        st.dataframe(user_df)
+
+        try:
+            # Preprocess user data
+            user_df['Time_log'] = np.log(user_df['Time (min)'] + 1)
+            user_df['BET_log'] = np.log(user_df['BET'] + 1)
+            user_df['PS_log'] = np.log(user_df['PS'] + 1)
+            user_df = user_df.drop(['Time (min)', 'BET', 'PS'], axis=1)
+
+            user_df['raw_material'] = label_encoder.transform(user_df['raw_material'])
+            user_df[columns[:-1]] = scaler.transform(user_df[columns[:-1]])
+
+            predictions = grid_search.best_estimator_.predict(user_df)
+            user_df['Predicted Qm (mg/g)'] = predictions
+
+            st.write("Predictions:")
+            st.dataframe(user_df[['Predicted Qm (mg/g)']])
+
+        except Exception as e:
+            st.error(f"An error occurred during prediction: {e}")
