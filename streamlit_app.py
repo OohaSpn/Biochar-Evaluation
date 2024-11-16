@@ -155,29 +155,44 @@ with st.expander("K-Fold Cross-Validation Results"):
     st.write(f"Mean K-Fold MAPE: {np.mean(k_rf_mape):.4f}")
     st.write(f"Mean K-Fold RMSE: {np.mean(k_rf_rmse):.4f}")
 
-# User File Upload
-with st.expander("Predict Using Your Data"):
-    uploaded_file = st.file_uploader("Upload your CSV file for predictions:", type=["csv"])
-    if uploaded_file:
-        user_df = pd.read_csv(uploaded_file)
-        st.write("Uploaded Data:")
-        st.dataframe(user_df)
+with st.sidebar:
+    st.header("Upload File for Prediction")
+    uploaded_file = st.file_uploader("Upload your dataset (.csv or .xlsx)", type=["csv", "xlsx"])
 
-        try:
-            # Preprocess user data
-            user_df['Time_log'] = np.log(user_df['Time (min)'] + 1)
-            user_df['BET_log'] = np.log(user_df['BET'] + 1)
-            user_df['PS_log'] = np.log(user_df['PS'] + 1)
-            user_df = user_df.drop(['Time (min)', 'BET', 'PS'], axis=1)
+if uploaded_file:
+    # Determine the file extension
+    file_extension = uploaded_file.name.split('.')[-1]
+    
+    # Read the file based on its extension
+    if file_extension == 'csv':
+        user_data = pd.read_csv(uploaded_file)
+    elif file_extension == 'xlsx':
+        user_data = pd.read_excel(uploaded_file)
+    else:
+        st.error("Unsupported file format!")
+    
+    # Display uploaded data
+    with st.expander("Uploaded Data"):
+        st.write(user_data)
 
-            user_df['raw_material'] = label_encoder.transform(user_df['raw_material'])
-            user_df[columns[:-1]] = scaler.transform(user_df[columns[:-1]])
-
-            predictions = grid_search.best_estimator_.predict(user_df)
-            user_df['Predicted Qm (mg/g)'] = predictions
-
-            st.write("Predictions:")
-            st.dataframe(user_df[['Predicted Qm (mg/g)']])
-
-        except Exception as e:
-            st.error(f"An error occurred during prediction: {e}")
+    # Perform preprocessing on uploaded data
+    try:
+        user_data['raw_material'] = label_encoder.transform(user_data['raw_material'])
+        user_data['TP'] = label_encoder.transform(user_data['TP'])  # If TP is categorical
+        
+        # Apply log transformations and scaling if necessary
+        user_data['Time_log'] = np.log(user_data['Time (min)'] + 1)
+        user_data['BET_log'] = np.log(user_data['BET'] + 1)
+        user_data['PS_log'] = np.log(user_data['PS'] + 1)
+        
+        user_data = scaler.transform(user_data[numeric_columns + ['raw_material']])
+        
+        # Predict using the trained model
+        predictions = grid_search.best_estimator_.predict(user_data)
+        
+        # Display predictions
+        with st.expander("Predictions"):
+            st.write("Predicted Qm (mg/g):")
+            st.write(predictions)
+    except Exception as e:
+        st.error(f"An error occurred while processing your file: {e}")
