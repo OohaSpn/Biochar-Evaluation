@@ -145,6 +145,7 @@ with st.expander("Model Training"):
     best_params = grid_search.best_params_
     st.write("Initial Parameters for Tuning:", param_rf)
     st.write("Best Hyperparameters:", best_params)
+    st.write(X)
 
 # K-Fold Cross-Validation with Best Model
 with st.expander("K-Fold Cross-Validation Results"):
