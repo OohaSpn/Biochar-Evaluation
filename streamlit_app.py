@@ -156,49 +156,26 @@ with st.expander("K-Fold Cross-Validation Results"):
     st.write(f"Mean K-Fold MAPE: {np.mean(k_rf_mape):.4f}")
     st.write(f"Mean K-Fold RMSE: {np.mean(k_rf_rmse):.4f}")
 
-with st.sidebar:
-    st.header("Upload File for Prediction")
-    uploaded_file = st.file_uploader("Upload your dataset (.csv or .xlsx)", type=["csv", "xlsx"])
+with st.expander("Want to predict"):
+    # User inputs for each feature
+TemP = st.number_input('Enter Temperature (TemP)', value=0.0)
+Time_min = st.number_input('Enter Time (min)', value=0.0)
+PS = st.number_input('Enter Particle Size (PS)', value=0.0)
+BET = st.number_input('Enter BET Surface Area', value=0.0)
+PV = st.number_input('Enter Pore Volume (PV)', value=0.0)
+C = st.number_input('Enter Carbon content (C)', value=0.0)
+H = st.number_input('Enter Hydrogen content (H)', value=0.0)
+N = st.number_input('Enter Nitrogen content (N)', value=0.0)
+O = st.number_input('Enter Oxygen content (O)', value=0.0)
+model = joblib.load("/Users/nandipatioohasripriya/Downloads/xgboost_model.joblib")
+# Prediction button
+if st.button('Predict'):
+    # Create a DataFrame for model input
+    input_data = pd.DataFrame([[TemP, Time_min, PS, BET, PV, C, H, N, O]],
+                              columns=['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O'])
 
-if uploaded_file:
-    # Determine the file extension
-    file_extension = uploaded_file.name.split('.')[-1]
-    
-    # Read the file based on its extension
-    if file_extension == 'csv':
-        user_data = pd.read_csv(uploaded_file)
-    elif file_extension == 'xlsx':
-        user_data = pd.read_excel(uploaded_file)
-    else:
-        st.error("Unsupported file format!")
-    
-    # Display uploaded data
-    with st.expander("Uploaded Data"):
-        st.write(user_data)
+    # Make prediction using the Random Forest model
+    prediction = model.predict(input_data)
 
-    # Perform preprocessing on uploaded data
-    try:
-        # Remove the TP column if present
-       
-        user_data = user_data.drop(columns=['TP'])
-        
-        user_data['raw_material'] = label_encoder.transform(user_data['raw_material'])
-        
-        # Apply log transformations and scaling
-        user_data['Time_log'] = np.log(user_data['Time (min)'] + 1)
-        user_data['BET_log'] = np.log(user_data['BET'] + 1)
-        user_data['PS_log'] = np.log(user_data['PS'] + 1)
-        user_data = user_data.drop(columns=['Time (min)', 'BET', 'PS'])
-        columns = ['TemP', 'Time_log', 'PS_log', 'BET_log', 'PV', 'C', 'H', 'N', 'O']
-        user_data = scaler.transform(user_data[columns + ['raw_material']])
-        
-        # Predict using the trained model
-        predictions = grid_search.best_estimator_.predict(user_data)
-        
-        # Display predictions
-        with st.expander("Predictions"):
-            st.write("Predicted Qm (mg/g):")
-            st.write(predictions)
-    except Exception as e:
-        st.error(f"An error occurred while processing your file: {e}")
-
+    # Display prediction
+    st.success(f'Predicted Pharmaceutical Removal Efficiency (Qm): {prediction[0]} mg/g')
