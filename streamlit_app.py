@@ -179,7 +179,7 @@ if uploaded_file:
     try:
         # Remove the TP column if present
        
-        user_data = user_data.drop(columns=['TP' , 'Qm (mg/g)'])
+        user_data = user_data.drop(columns=['TP'])
         
         user_data['raw_material'] = label_encoder.transform(user_data['raw_material'])
         
@@ -188,7 +188,7 @@ if uploaded_file:
         user_data['BET_log'] = np.log(user_data['BET'] + 1)
         user_data['PS_log'] = np.log(user_data['PS'] + 1)
         user_data = user_data.drop(columns=['Time (min)', 'BET', 'PS'])
-        columns = ['TemP', 'Time_log', 'PS_log', 'BET_log', 'PV', 'C', 'H', 'N', 'O']
+        columns = ['TemP', 'Time_log', 'PS_log', 'BET_log', 'PV', 'C', 'H', 'N', 'O', 'Qm (mg/g)']
         user_data = scaler.transform(user_data[columns + ['raw_material']])
         
         # Predict using the trained model
