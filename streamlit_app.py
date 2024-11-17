@@ -158,24 +158,24 @@ with st.expander("K-Fold Cross-Validation Results"):
 
 with st.expander("Want to predict"):
     # User inputs for each feature
-TemP = st.number_input('Enter Temperature (TemP)', value=0.0)
-Time_min = st.number_input('Enter Time (min)', value=0.0)
-PS = st.number_input('Enter Particle Size (PS)', value=0.0)
-BET = st.number_input('Enter BET Surface Area', value=0.0)
-PV = st.number_input('Enter Pore Volume (PV)', value=0.0)
-C = st.number_input('Enter Carbon content (C)', value=0.0)
-H = st.number_input('Enter Hydrogen content (H)', value=0.0)
-N = st.number_input('Enter Nitrogen content (N)', value=0.0)
-O = st.number_input('Enter Oxygen content (O)', value=0.0)
-model = joblib.load("/Users/nandipatioohasripriya/Downloads/xgboost_model.joblib")
-# Prediction button
-if st.button('Predict'):
-    # Create a DataFrame for model input
-    input_data = pd.DataFrame([[TemP, Time_min, PS, BET, PV, C, H, N, O]],
-                              columns=['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O'])
-
-    # Make prediction using the Random Forest model
-    prediction = model.predict(input_data)
-
-    # Display prediction
-    st.success(f'Predicted Pharmaceutical Removal Efficiency (Qm): {prediction[0]} mg/g')
+    TemP = st.number_input('Enter Temperature (TemP)', value=0.0)
+    Time_min = st.number_input('Enter Time (min)', value=0.0)
+    PS = st.number_input('Enter Particle Size (PS)', value=0.0)
+    BET = st.number_input('Enter BET Surface Area', value=0.0)
+    PV = st.number_input('Enter Pore Volume (PV)', value=0.0)
+    C = st.number_input('Enter Carbon content (C)', value=0.0)
+    H = st.number_input('Enter Hydrogen content (H)', value=0.0)
+    N = st.number_input('Enter Nitrogen content (N)', value=0.0)
+    O = st.number_input('Enter Oxygen content (O)', value=0.0)
+    model = joblib.load("/Users/nandipatioohasripriya/Downloads/xgboost_model.joblib")
+    # Prediction button
+    if st.button('Predict'):
+        # Create a DataFrame for model input
+        input_data = pd.DataFrame([[TemP, Time_min, PS, BET, PV, C, H, N, O]],
+                                  columns=['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O'])
+    
+        # Make prediction using the Random Forest model
+        prediction = model.predict(input_data)
+    
+        # Display prediction
+        st.success(f'Predicted Pharmaceutical Removal Efficiency (Qm): {prediction[0]} mg/g')
