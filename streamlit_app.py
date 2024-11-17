@@ -177,15 +177,15 @@ if uploaded_file:
 
     # Perform preprocessing on uploaded data
     try:
-        user_data['raw_material'] = label_encoder.transform(user_data['raw_material'])
+        user_data['Biomass'] = label_encoder.transform(user_data['Biomass'])
         user_data['TP'] = label_encoder.transform(user_data['TP'])  # If TP is categorical
         
         # Apply log transformations and scaling if necessary
-        user_data['Time_log'] = np.log(user_data['Time (min)'] + 1)
-        user_data['BET_log'] = np.log(user_data['BET'] + 1)
-        user_data['PS_log'] = np.log(user_data['PS'] + 1)
+        user_data['Time (min)'] = np.log(user_data['Time (min)'] + 1)
+        user_data['BET'] = np.log(user_data['BET'] + 1)
+        user_data['PS'] = np.log(user_data['PS'] + 1)
         
-        user_data = scaler.transform(user_data[numeric_columns + ['raw_material']])
+        user_data = scaler.transform(user_data[numeric_columns + ['Biomass']])
         
         # Predict using the trained model
         predictions = grid_search.best_estimator_.predict(user_data)
