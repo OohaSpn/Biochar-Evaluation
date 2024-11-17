@@ -177,10 +177,13 @@ if uploaded_file:
 
     # Perform preprocessing on uploaded data
     try:
-        user_data['raw_material'] = label_encoder.transform(user_data['raw_material'])
-        user_data['TP'] = label_encoder.transform(user_data['TP'])  # If TP is categorical
+        # Remove the TP column if present
+        if 'TP' in user_data.columns:
+            user_data = user_data.drop(columns=['TP'])
         
-        # Apply log transformations and scaling if necessary
+        user_data['raw_material'] = label_encoder.transform(user_data['raw_material'])
+        
+        # Apply log transformations and scaling
         user_data['Time (min)'] = np.log(user_data['Time (min)'] + 1)
         user_data['BET'] = np.log(user_data['BET'] + 1)
         user_data['PS'] = np.log(user_data['PS'] + 1)
@@ -196,3 +199,4 @@ if uploaded_file:
             st.write(predictions)
     except Exception as e:
         st.error(f"An error occurred while processing your file: {e}")
+
