@@ -168,7 +168,7 @@ with st.expander("Want to predict"):
     H = st.number_input('Enter Hydrogen content (H)', value=0.0)
     N = st.number_input('Enter Nitrogen content (N)', value=0.0)
     O = st.number_input('Enter Oxygen content (O)', value=0.0)
-    model = joblib.load("/Users/nandipatioohasripriya/Downloads/xgboost_model.joblib")
+    model = joblib.load('xgboost_model.joblib')
     # Prediction button
     if st.button('Predict'):
         # Create a DataFrame for model input
