@@ -178,17 +178,18 @@ if uploaded_file:
     # Perform preprocessing on uploaded data
     try:
         # Remove the TP column if present
-        if 'TP' in user_data.columns:
-            user_data = user_data.drop(columns=['TP'])
+       
+        user_data = user_data.drop(columns=['TP' , 'Qm (mg/g)'])
         
         user_data['raw_material'] = label_encoder.transform(user_data['raw_material'])
         
         # Apply log transformations and scaling
-        user_data['Time (min)'] = np.log(user_data['Time (min)'] + 1)
-        user_data['BET'] = np.log(user_data['BET'] + 1)
-        user_data['PS'] = np.log(user_data['PS'] + 1)
-        
-        user_data = scaler.transform(user_data[numeric_columns + ['raw_material']])
+        user_data['Time_log'] = np.log(user_data['Time (min)'] + 1)
+        user_data['BET_log'] = np.log(user_data['BET'] + 1)
+        user_data['PS_log'] = np.log(user_data['PS'] + 1)
+        user_data = user_data.drop(columns=['Time (min)', 'BET', 'PS'])
+        columns = ['TemP', 'Time_log', 'PS_log', 'BET_log', 'PV', 'C', 'H', 'N', 'O']
+        user_data = scaler.transform(user_data[columns + ['raw_material']])
         
         # Predict using the trained model
         predictions = grid_search.best_estimator_.predict(user_data)
