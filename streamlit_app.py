@@ -19,7 +19,7 @@ with st.expander('Data'):
     st.dataframe(df)
 
     st.write('**Numeric Columns**')
-    numeric_columns = ['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'N', 'H', 'O']
+    numeric_columns = ['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'N', 'H', 'O' , 'Qm (mg/g)']
     st.write(numeric_columns)
 
     st.write('**Categorical Columns**')
@@ -188,7 +188,7 @@ if uploaded_file:
         user_data['BET_log'] = np.log(user_data['BET'] + 1)
         user_data['PS_log'] = np.log(user_data['PS'] + 1)
         user_data = user_data.drop(columns=['Time (min)', 'BET', 'PS'])
-        columns = ['TemP', 'Time_log', 'PS_log', 'BET_log', 'PV', 'C', 'H', 'N', 'O', 'Qm (mg/g)']
+        columns = ['TemP', 'Time_log', 'PS_log', 'BET_log', 'PV', 'C', 'H', 'N', 'O']
         user_data = scaler.transform(user_data[columns + ['raw_material']])
         
         # Predict using the trained model
