@@ -180,4 +180,4 @@ with st.expander("Want to predict"):
         prediction = model.predict(input_data)
     
         # Display prediction
-        st.success(f'Predicted Pharmaceutical Removal Efficiency (Qm): {prediction[0]} mg/g')
+        st.success(f'Predicted Pharmaceutical Removal Efficiency (Qm): {prediction} mg/g')
