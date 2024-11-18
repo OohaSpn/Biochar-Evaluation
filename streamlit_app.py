@@ -5,6 +5,7 @@ import seaborn as sns
 import numpy as np
 import joblib
 import xgboost as xgb
+from xgboost import XGBRegressor
 from sklearn.model_selection import KFold, GridSearchCV
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.ensemble import RandomForestRegressor
