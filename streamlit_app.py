@@ -9,6 +9,7 @@ from xgboost import XGBRegressor
 from sklearn.model_selection import KFold, GridSearchCV
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
 from sklearn.metrics import make_scorer, mean_absolute_percentage_error, mean_squared_error
 from sklearn.model_selection import cross_val_score, KFold, cross_validate, cross_val_predict
 
