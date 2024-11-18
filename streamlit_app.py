@@ -14,7 +14,15 @@ from sklearn.metrics import make_scorer, mean_absolute_percentage_error, mean_sq
 from sklearn.model_selection import cross_val_score, KFold, cross_validate, cross_val_predict
 
 st.title('Evaluating Biochar')
-st.info('Biochar is a carbon-rich adsorbent material produced from the thermal decomposition of organic waste (such as crops, forestry residues, sewage sludge, algal biomass, and poultry manure) under controlled conditions. It is evaluated for its effectiveness in removing pharmaceutical pollutants from wastewater due to its high adsorption capacity, porous structure, and large surface area, which allow it to effectively capture and remove contaminants. This project focuses on comparing biochar's performance and optimizing conditions /for/ its use in sustainable wastewater treatment.')
+st.info('''
+    Biochar is a carbon-rich adsorbent material produced from the thermal decomposition of organic waste
+    (such as crops, forestry residues, sewage sludge, algal biomass, and poultry manure) under controlled
+    conditions. It is evaluated for its effectiveness in removing pharmaceutical pollutants from wastewater
+    due to its high adsorption capacity, porous structure, and large surface area, which allow it to effectively
+    capture and remove contaminants. This project focuses on comparing biochar's performance and optimizing
+    conditions for its use in sustainable wastewater treatment.
+''')
+
 
 # Data Display
 with st.expander('Data'):
