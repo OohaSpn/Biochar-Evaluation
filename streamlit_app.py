@@ -108,10 +108,8 @@ with st.expander("Data Visualizations"):
    # Preprocessing the Data
     label_encoder = LabelEncoder()
     df['raw_material'] = label_encoder.fit_transform(df['raw_material'])
-    columns = ['TemP', 'Time_log', 'PS_log', 'BET_log', 'PV', 'C', 'H', 'N', 'O', 'Qm (mg/g)', 'raw_material']
-    scaler = StandardScaler()
     
-    X = df.drop(columns=['Qm (mg/g)'])  # Drop target column
+    X = df.drop(columns=['Qm (mg/g)', 'TP'])  # Drop target column
     y = df['Qm (mg/g)']  # Target column
 
 # Model Training
