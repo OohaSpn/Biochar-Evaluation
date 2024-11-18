@@ -172,7 +172,7 @@ with st.expander("Want to predict"):
         # Create a DataFrame for model input
         
         input_data = pd.DataFrame([[TemP, Time_min, PS, BET, PV, C, H, N, O, Biomass_encoded]],
-                          columns=['TemP', 'Time_min', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O', 'raw_material'])
+                          columns=['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O', 'raw_material'])
 
                                   
     
