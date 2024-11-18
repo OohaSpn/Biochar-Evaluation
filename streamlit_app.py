@@ -133,7 +133,7 @@ with st.expander("Model Training"):
     random_search_xgb.fit(X, y)
     best_params_xgb = random_search_xgb.best_params_
     st.write("Initial Parameters for Tuning:", param_xgb)
-    st.write("Best Parameters:", best_params_gbr)
+    st.write("Best Parameters:", best_params_xgb)
        
 
    
