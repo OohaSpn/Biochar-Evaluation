@@ -77,27 +77,26 @@ with st.expander("Data Visualizations"):
     st.write('Distribution After Applying Log to Skewed Data')
 
     # Apply log transformation to skewed data
-    df['Time_log'] = np.log(df['Time (min)'] + 1)  # Add 1 to avoid log(0)
-    df['BET_log'] = np.log(df['BET'] + 1)
-    df['PS_log'] = np.log(df['PS'] + 1)
+    df['Time (min)'] = np.log(df['Time (min)'] + 1)  # Add 1 to avoid log(0)
+    df['BET'] = np.log(df['BET'] + 1)
+    df['PS'] = np.log(df['PS'] + 1)
 
     # Create a figure with subplots for the log-transformed distributions
     fig, axes = plt.subplots(1, 3, figsize=(20, 5))
-    sns.histplot(df['Time_log'], kde=True, ax=axes[0])
+    sns.histplot(df['Time (min)'], kde=True, ax=axes[0])
     axes[0].set_title('Log-Transformed Distribution of Time (min)')
-    sns.histplot(df['BET_log'], kde=True, ax=axes[1])
+    sns.histplot(df['BET'], kde=True, ax=axes[1])
     axes[1].set_title('Log-Transformed Distribution of BET')
-    sns.histplot(df['PS_log'], kde=True, ax=axes[2])
+    sns.histplot(df['PS'], kde=True, ax=axes[2])
     axes[2].set_title('Log-Transformed Distribution of PS')
 
     plt.tight_layout()
     st.pyplot(fig)
 
-    df = df.drop(['Time (min)', 'BET', 'PS'], axis=1)
     
     # Pearson Correlation
     st.write("Pearson Correlation Between Features")
-    columns = ['TemP', 'Time_log', 'PS_log', 'BET_log', 'PV', 'C', 'H', 'N', 'O', 'Qm (mg/g)']
+    columns = ['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O', 'Qm (mg/g)']
     corr_matrix = df[columns].corr()
     fig, ax = plt.subplots(figsize=(10, 8))
     sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f", linewidths=0.5, cbar=True)
@@ -110,53 +109,42 @@ with st.expander("Data Visualizations"):
     columns = ['TemP', 'Time_log', 'PS_log', 'BET_log', 'PV', 'C', 'H', 'N', 'O', 'Qm (mg/g)', 'raw_material']
     scaler = StandardScaler()
     
-    # Apply standardization to the selected columns
-    df[columns] = scaler.fit_transform(df[columns])
-    df = df[columns]
     X = df.drop(columns=['Qm (mg/g)'])  # Drop target column
     y = df['Qm (mg/g)']  # Target column
 
 # Model Training
 with st.expander("Model Training"):
-    st.write("Training a Random Forest Regressor model with GridSearchCV for hyperparameter tuning.")
+    st.write("Training a XGBoost Regressor model with GridSearchCV for hyperparameter tuning.")
     mape_scorer = make_scorer(mean_absolute_percentage_error, greater_is_better=False)
     # Set up K-Fold cross-validation and grid search parameters
     k_folds = KFold(n_splits=5)
-    param_rf = {
-        'n_estimators': [15, 25, 50, 100, 150],
-        'max_depth': [None, 6, 8],
-        'min_samples_split': [2, 4],
-        'min_samples_leaf': [1, 2, 4]
+    xgb_reg = XGBRegressor()
+    param_xgb = {
+    'n_estimators': [100, 200, 300, 400, 500],
+    'learning_rate': [0.001, 0.01, 0.05, 0.1, 0.2],
+    'max_depth': [3, 4, 5, 6, 7],
+    'subsample': [0.6, 0.7, 0.8, 0.9, 1.0],
+    'colsample_bytree': [0.6, 0.7, 0.8, 0.9, 1.0],
+    'gamma': [0, 0.1, 0.2, 0.3, 0.4],
+    'reg_alpha': [0, 0.1, 0.2, 0.3, 0.4],
+    'reg_lambda': [0, 0.1, 0.2, 0.3, 0.4]
     }
-    
-    rf_regressor = RandomForestRegressor(random_state=42)
+    random_search_xgb = RandomizedSearchCV(xgb_reg, param_distributions=param_xgb, n_iter=50, scoring='r2', cv=5, verbose=1, random_state=42, n_jobs=-1)
+    random_search_xgb.fit(X, y)
+    best_params_xgb = random_search_xgb.best_params_
+    st.write("Initial Parameters for Tuning:", param_xgb)
+    st.write("Best Parameters:", best_params_gbr)
+       
 
-    grid_search = GridSearchCV(
-        estimator=rf_regressor,
-        param_grid=param_rf,
-        scoring={'neg_mean_squared_error': 'neg_mean_squared_error', 'mape': mape_scorer},
-        refit="neg_mean_squared_error",
-        cv=5,
-        verbose=1,
-        n_jobs=-1
-    )
-# Perform the grid search
-    grid_search.fit(X, y)
-    
-    # Display best parameters found by GridSearchCV
-    best_params = grid_search.best_params_
-    st.write("Initial Parameters for Tuning:", param_rf)
-    st.write("Best Hyperparameters:", best_params)
-    st.write(X)
+   
 
 # K-Fold Cross-Validation with Best Model
 with st.expander("K-Fold Cross-Validation Results"):
     st.write("Evaluating model performance with K-Fold cross-validation.")
-    k_rf_mape = cross_val_score(grid_search.best_estimator_, X, y, cv=k_folds, scoring=mape_scorer) * -1
-    k_rf_rmse = np.sqrt(-cross_val_score(grid_search.best_estimator_, X, y, cv=k_folds, scoring="neg_mean_squared_error"))
-
-    st.write(f"Mean K-Fold MAPE: {np.mean(k_rf_mape):.4f}")
-    st.write(f"Mean K-Fold RMSE: {np.mean(k_rf_rmse):.4f}")
+    kfold_xgb_mape = cross_val_score(random_search_xgb.best_estimator_, X, y.values.ravel(), cv = k_folds, scoring= mape_scorer) * -1
+    kfold_xgb_rmse = np.sqrt(cross_val_score(random_search_xgb.best_estimator_, X, y.values.ravel(), cv = k_folds, scoring= "neg_mean_squared_error")*-1)
+    st.write(f"k-fold MAPE score: {np.mean(kfold_xgb_mape)}")
+    st.write(f"k-fold RMSE score: {np.mean(kfold_xgb_rmse)}")
 
 with st.expander("Want to predict"):
     # User inputs for each feature
@@ -169,12 +157,13 @@ with st.expander("Want to predict"):
     H = st.number_input('Enter Hydrogen content (H)', value=0.0)
     N = st.number_input('Enter Nitrogen content (N)', value=0.0)
     O = st.number_input('Enter Oxygen content (O)', value=0.0)
-    model = joblib.load('xgboost_model.joblib')
+    Biomass_encoded = st.number_input('Enter Biomass', value=0.0)
+    model = random_search_xgb.best_estimator_
     # Prediction button
     if st.button('Predict'):
         # Create a DataFrame for model input
-        input_data = pd.DataFrame([[TemP, Time_min, PS, BET, PV, C, H, N, O]],
-                                  columns=['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O'])
+        input_data = pd.DataFrame([[TemP, Time_min, PS, BET, PV, C, H, N, O, Biomass_encoded]],
+                                  columns=['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O', 'Biomass_encoded'])
     
         # Make prediction using the Random Forest model
         prediction = model.predict(input_data)
