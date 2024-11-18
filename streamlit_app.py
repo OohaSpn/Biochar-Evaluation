@@ -170,7 +170,10 @@ with st.expander("Want to predict"):
     # Prediction button
     if st.button('Predict'):
         # Create a DataFrame for model input
-        input_data = [[TemP, Time_min, PS, BET, PV, C, H, N, O, Biomass_encoded]],
+        
+        input_data = pd.DataFrame([[TemP, Time_min, PS, BET, PV, C, H, N, O, Biomass_encoded]],
+                          columns=['TemP', 'Time_min', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O', 'raw_material'])
+
                                   
     
         # Make prediction using the Random Forest model
