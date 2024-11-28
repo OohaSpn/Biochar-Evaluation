@@ -115,7 +115,7 @@ with st.expander("Data Visualizations"):
 
    # Preprocessing the Data
     label_encoder = LabelEncoder()
-    df[raw_material_encoded] = label_encoder.fit_transform(df['raw_material'])
+    df['raw_material_encoded'] = label_encoder.fit_transform(df['raw_material'])
     # Create a dictionary of raw_material and its encoded values
     raw_material_mapping = dict(zip(df['raw_material'], df['raw_material_encoded']))
 
