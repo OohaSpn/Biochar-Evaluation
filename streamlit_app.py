@@ -48,9 +48,6 @@ with st.expander('Data'):
 
 # Sidebar Inputs
 with st.sidebar:
-    st.header('Input feature For Biomass')
-    raw_material = st.selectbox('Select Raw Material', df['raw_material'].unique())
-
     st.header('Input feature for Type of Pollutant')
     tp_value = st.selectbox('Select TP', df['TP'].unique())
 
@@ -121,7 +118,7 @@ with st.expander("Data Visualizations"):
 
 # Sidebar Inputs
 with st.sidebar:
-    st.header('Input feature For Biomasss')
+    st.header('Input feature For Biomass')
     # Create options like 'paper: 18'
     raw_material_options = [f"{material}: {code}" for material, code in raw_material_mapping.items()]
     selected_option = st.selectbox('Select Raw Material', raw_material_options)
@@ -187,7 +184,7 @@ with st.expander("Want to predict"):
         # Create a DataFrame for model input
         
         input_data = pd.DataFrame([[TemP, Time_min, PS, BET, PV, C, H, N, O, Biomass_encoded]],
-                          columns=['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O', 'raw_material'])
+                          columns=['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O', 'raw_material_encoded'])
 
                                   
     
