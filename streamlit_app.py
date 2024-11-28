@@ -115,9 +115,25 @@ with st.expander("Data Visualizations"):
 
    # Preprocessing the Data
     label_encoder = LabelEncoder()
-    df['raw_material'] = label_encoder.fit_transform(df['raw_material'])
+    df[raw_material_encoded] = label_encoder.fit_transform(df['raw_material'])
+    # Create a dictionary of raw_material and its encoded values
+    raw_material_mapping = dict(zip(df['raw_material'], df['raw_material_encoded']))
+
+# Sidebar Inputs
+with st.sidebar:
+    st.header('Input feature For Biomass')
+    # Create options like 'paper: 18'
+    raw_material_options = [f"{material}: {code}" for material, code in raw_material_mapping.items()]
+    selected_option = st.selectbox('Select Raw Material', raw_material_options)
     
-    X = df.drop(columns=['Qm (mg/g)', 'TP'])  # Drop target column
+    # Extract the encoded value (integer) from the selected option
+    raw_material_encoded = int(selected_option.split(': ')[1])  # Get the numeric code
+    st.write(f"You selected: {selected_option} (Encoded: {raw_material_encoded})")
+
+    st.header('Input feature for Type of Pollutant')
+    tp_value = st.selectbox('Select TP', df['TP'].unique())
+    
+    X = df.drop(columns=['Qm (mg/g)', 'TP', 'raw_material'])  # Drop target column
     y = df['Qm (mg/g)']  # Target column
 
 # Model Training
