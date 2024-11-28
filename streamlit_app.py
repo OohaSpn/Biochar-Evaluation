@@ -121,7 +121,7 @@ with st.expander("Data Visualizations"):
 
 # Sidebar Inputs
 with st.sidebar:
-    st.header('Input feature For Biomass')
+    st.header('Input feature For Biomasss')
     # Create options like 'paper: 18'
     raw_material_options = [f"{material}: {code}" for material, code in raw_material_mapping.items()]
     selected_option = st.selectbox('Select Raw Material', raw_material_options)
@@ -130,8 +130,7 @@ with st.sidebar:
     raw_material_encoded = int(selected_option.split(': ')[1])  # Get the numeric code
     st.write(f"You selected: {selected_option} (Encoded: {raw_material_encoded})")
 
-    st.header('Input feature for Type of Pollutant')
-    tp_value = st.selectbox('Select TP', df['TP'].unique())
+
     
     X = df.drop(columns=['Qm (mg/g)', 'TP', 'raw_material'])  # Drop target column
     y = df['Qm (mg/g)']  # Target column
