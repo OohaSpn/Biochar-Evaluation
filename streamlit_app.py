@@ -54,9 +54,6 @@ with st.sidebar:
 # Filtered Data
 filtered_df_tp = df[df['TP'] == tp_value]
 
-with st.expander("Filtered Data"):
-    st.write(f"Filtered data for TP: **{tp_value}**")
-    st.dataframe(filtered_df_tp)
 
 # Data Visualizations
 with st.expander("Data Visualizations"):
@@ -113,17 +110,25 @@ with st.expander("Data Visualizations"):
     raw_material_mapping = dict(zip(df['raw_material'], df['raw_material_encoded']))
 
 # Sidebar Inputs
+# Sidebar Inputs for Biomass
 with st.sidebar:
-    st.header('Input feature For Biomass')
+    st.header('Input Feature for Biomass')
     # Create options like 'paper: 18'
     raw_material_options = [f"{material}: {code}" for material, code in raw_material_mapping.items()]
     selected_option = st.selectbox('Select Raw Material', raw_material_options)
-    filtered_df_biomass = df[df['raw_material'] == selected_option]
-    # Extract the encoded value (integer) from the selected option
-    raw_material_encoded = int(selected_option.split(': ')[1])  # Get the numeric code
+    # Extract the raw material name from the selected option
+    raw_material_selected = selected_option.split(': ')[0]  # Get the raw material name
+    raw_material_encoded = int(selected_option.split(': ')[1])  # Get the encoded value
     st.write(f"You selected: {selected_option} (Encoded: {raw_material_encoded})")
 
+# Filtered Data based on Biomass Selection
+filtered_df_biomass = df[df['raw_material'] == raw_material_selected]
 
+with st.expander("Filtered Data"):
+    st.write(f"Filtered data for raw material: **{raw_material_selected}**")
+    st.dataframe(filtered_df_biomass)
+    st.write(f"Filtered data for TP: **{tp_value}**")
+    st.dataframe(filtered_df_tp)
     
     X = df.drop(columns=['Qm (mg/g)', 'TP', 'raw_material'])  # Drop target column
     y = df['Qm (mg/g)']  # Target column
