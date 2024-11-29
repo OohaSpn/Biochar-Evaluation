@@ -55,9 +55,6 @@ with st.sidebar:
 filtered_df_tp = df[df['TP'] == tp_value]
 
 with st.expander("Filtered Data"):
-    st.write(f"Filtered data for raw_material: **{raw_material}**")
-    st.dataframe(filtered_df_biomass)
-
     st.write(f"Filtered data for TP: **{tp_value}**")
     st.dataframe(filtered_df_tp)
 
