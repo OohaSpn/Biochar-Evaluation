@@ -52,7 +52,6 @@ with st.sidebar:
     tp_value = st.selectbox('Select TP', df['TP'].unique())
 
 # Filtered Data
-filtered_df_biomass = df[df['raw_material'] == raw_material]
 filtered_df_tp = df[df['TP'] == tp_value]
 
 with st.expander("Filtered Data"):
@@ -122,7 +121,7 @@ with st.sidebar:
     # Create options like 'paper: 18'
     raw_material_options = [f"{material}: {code}" for material, code in raw_material_mapping.items()]
     selected_option = st.selectbox('Select Raw Material', raw_material_options)
-    
+    filtered_df_biomass = df[df['raw_material'] == selected_option]
     # Extract the encoded value (integer) from the selected option
     raw_material_encoded = int(selected_option.split(': ')[1])  # Get the numeric code
     st.write(f"You selected: {selected_option} (Encoded: {raw_material_encoded})")
