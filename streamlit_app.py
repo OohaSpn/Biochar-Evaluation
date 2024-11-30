@@ -131,7 +131,7 @@ with st.expander("Filtered Data"):
     st.write(f"Filtered data for TP: **{tp_value}**")
     st.dataframe(filtered_df_tp)
     
-    X = df.drop(columns=['Qm (mg/g)', 'TP', 'raw_material', 'Temp', 'Time (min)', 'PS', 'C', 'H'])  # Drop target column
+    X = df.drop(columns=['Qm (mg/g)', 'TP', 'raw_material', 'TemP', 'Time (min)', 'PS', 'C', 'H'])  # Drop target column
     y = df['Qm (mg/g)']  # Target column
 
 # Model Training
