@@ -46,14 +46,6 @@ with st.expander('Data'):
     y_raw = df['Qm (mg/g)']
     st.write(y_raw)
 
-# Sidebar Inputs
-with st.sidebar:
-    st.header('Input feature for Type of Pollutant')
-    tp_value = st.selectbox('Select TP', df['TP'].unique())
-
-# Filtered Data
-filtered_df_tp = df[df['TP'] == tp_value]
-
 
 # Data Visualizations
 with st.expander("Data Visualizations"):
@@ -110,7 +102,7 @@ with st.expander("Data Visualizations"):
     # Create a dictionary of raw_material and its encoded values
     raw_material_mapping = dict(zip(df['raw_material'], df['raw_material_encoded']))
     tp_mapping = dict(zip(df['TP'], df['TP_encoded']))
-# Sidebar Inputs
+
 # Sidebar Inputs for Biomass
 with st.sidebar:
     st.header('Input Feature for Biomass')
