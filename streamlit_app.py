@@ -141,15 +141,12 @@ with st.expander("Model Training"):
     k_folds = KFold(n_splits=5)
     xgb_reg = XGBRegressor(enable_categorical=True)
     param_xgb = {
-    'n_estimators': [100, 200, 300, 400, 500],
-    'learning_rate': [0.001, 0.01, 0.05, 0.1, 0.2],
-    'max_depth': [3, 4, 5, 6, 7],
-    'subsample': [0.6, 0.7, 0.8, 0.9, 1.0],
-    'colsample_bytree': [0.6, 0.7, 0.8, 0.9, 1.0],
-    'gamma': [0, 0.1, 0.2, 0.3, 0.4],
-    'reg_alpha': [0, 0.1, 0.2, 0.3, 0.4],
-    'reg_lambda': [0, 0.1, 0.2, 0.3, 0.4]
+    'n_estimators': [15, 25, 50, 100],
+    'max_depth': [3, 6, 8],
+    'learning_rate': [0.01, 0.05, 0.1],
+    'min_child_weight': [1, 3, 5]
     }
+
     random_search_xgb = RandomizedSearchCV(xgb_reg, param_distributions=param_xgb, n_iter=50, scoring='r2', cv=5, verbose=1, random_state=42, n_jobs=-1)
     random_search_xgb.fit(X, y)
     best_params_xgb = random_search_xgb.best_params_
