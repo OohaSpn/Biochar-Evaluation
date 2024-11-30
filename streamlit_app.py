@@ -106,6 +106,7 @@ with st.expander("Data Visualizations"):
    # Preprocessing the Data
     label_encoder = LabelEncoder()
     df['raw_material_encoded'] = label_encoder.fit_transform(df['raw_material'])
+    df['TP_encoded'] = label_encoder.fit_transform(df['TP'])
     # Create a dictionary of raw_material and its encoded values
     raw_material_mapping = dict(zip(df['raw_material'], df['raw_material_encoded']))
 
@@ -130,7 +131,7 @@ with st.expander("Filtered Data"):
     st.write(f"Filtered data for TP: **{tp_value}**")
     st.dataframe(filtered_df_tp)
     
-    X = df.drop(columns=['Qm (mg/g)', 'TP', 'raw_material'])  # Drop target column
+    X = df.drop(columns=['Qm (mg/g)', 'TP', 'raw_material', 'Temp', 'Time (min)', 'PS', 'C', 'H'])  # Drop target column
     y = df['Qm (mg/g)']  # Target column
 
 # Model Training
@@ -176,13 +177,14 @@ with st.expander("Want to predict"):
     N = st.number_input('Enter Nitrogen content (N)', value=0.0)
     O = st.number_input('Enter Oxygen content (O)', value=0.0)
     Biomass_encoded = st.number_input('Enter Biomass', value=0.0)
+    TP_encoded = st.number_input('Enter Type of Pollutant', value=0.0)
     model = random_search_xgb.best_estimator_
     # Prediction button
     if st.button('Predict'):
         # Create a DataFrame for model input
         
-        input_data = pd.DataFrame([[TemP, Time_min, PS, BET, PV, C, H, N, O, Biomass_encoded]],
-                          columns=['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O', 'raw_material_encoded'])
+        input_data = pd.DataFrame([[BET, PV, N, O, Biomass_encoded, TP_encoded]],
+                          columns=['BET', 'PV', 'N', 'O', 'raw_material_encoded', 'TP_encoded'])
 
                                   
     
