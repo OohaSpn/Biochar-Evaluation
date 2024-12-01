@@ -114,18 +114,23 @@ with st.sidebar:
     raw_material_encoded = int(selected_option.split(': ')[1])  # Get the encoded value
     st.write(f"You selected: {selected_option} (Encoded: {raw_material_encoded})")
 
+    # Create options like 'Pollutant1: 1'
     tp_options = [f"{tp}: {code}" for tp, code in tp_mapping.items()]
+    
+    # Display the selectbox
     selected_tp = st.selectbox('Select Type of Pollutant (TP)', tp_options)
     
     # Extract TP name and encoded value
-    tp_selected = selected_tp.split(': ')[0]
-    tp_encoded = int(selected_tp.split(': ')[1])
-    st.write(f"You selected: {selected_tp} (Encoded: {tp_encoded})")
-
+    if selected_tp:
+        tp_selected = selected_tp.split(': ')[0]  # Get the pollutant name
+        tp_encoded = int(selected_tp.split(': ')[1])  # Get the encoded value
+    
+        # Display selected value
+        st.write(f"You selected: {selected_tp} (Encoded: {tp_encoded})")
 
 # Filtered Data based on selections
 filtered_df_biomass = df[df['raw_material'] == raw_material_selected]
-filtered_df_tp = filtered_df_biomass[filtered_df_biomass['TP'] == tp_selected]
+filtered_df_tp = df[df['TP'] == tp_selected]
 
 with st.expander("Filtered Data"):
     st.write(f"Filtered data for raw material: **{raw_material_selected}**")
