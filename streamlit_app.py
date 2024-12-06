@@ -137,7 +137,7 @@ with st.expander("Filtered Data"):
     st.dataframe(filtered_df_biomass)
     st.write(f"Filtered data for TP: **{tp_selected}**")
     st.dataframe(filtered_df_tp)
-    X = df.drop(columns=['Qm (mg/g)', 'TP', 'raw_material', 'TemP', 'Time (min)', 'PS', 'C', 'H'])  # Drop target column
+    X = df.drop(columns=['Qm (mg/g)', 'TP', 'raw_material', 'TP_encoded'])  # Drop target column
     y = df['Qm (mg/g)']  # Target column
 
 # Model Training
@@ -148,10 +148,14 @@ with st.expander("Model Training"):
     k_folds = KFold(n_splits=5)
     xgb_reg = XGBRegressor(enable_categorical=True)
     param_xgb = {
-    'n_estimators': [15, 25, 50, 100],
-    'max_depth': [3, 6, 8],
-    'learning_rate': [0.01, 0.05, 0.1],
-    'min_child_weight': [1, 3, 5]
+    'n_estimators': [100, 200, 300, 400, 500],
+    'learning_rate': [0.001, 0.01, 0.05, 0.1, 0.2],
+    'max_depth': [3, 4, 5, 6, 7],
+    'subsample': [0.6, 0.7, 0.8, 0.9, 1.0],
+    'colsample_bytree': [0.6, 0.7, 0.8, 0.9, 1.0],
+    'gamma': [0, 0.1, 0.2, 0.3, 0.4],
+    'reg_alpha': [0, 0.1, 0.2, 0.3, 0.4],
+    'reg_lambda': [0, 0.1, 0.2, 0.3, 0.4]
     }
 
     random_search_xgb = RandomizedSearchCV(xgb_reg, param_distributions=param_xgb, n_iter=50, scoring='r2', cv=5, verbose=1, random_state=42, n_jobs=-1)
@@ -189,8 +193,8 @@ with st.expander("Want to predict"):
     if st.button('Predict'):
         # Create a DataFrame for model input
         
-        input_data = pd.DataFrame([[BET, PV, N, O, Biomass_encoded, TP_encoded]],
-                          columns=['BET', 'PV', 'N', 'O', 'raw_material_encoded', 'TP_encoded'])
+         input_data = pd.DataFrame([[TemP, Time_min, PS, BET, PV, C, H, N, O, Biomass_encoded]],
+                          columns=['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O', 'raw_material_encoded'])
 
                                   
     
