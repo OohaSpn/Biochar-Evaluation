@@ -28,6 +28,7 @@ st.info('''
 with st.expander('Data'):
     st.write('**Raw Data**')
     df = pd.read_csv("Updated_dataset.csv")
+    df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
     st.dataframe(df)
 
     st.write('**Numeric Columns**')
@@ -195,8 +196,8 @@ with st.expander("Want to predict"):
     # Prediction button
     if st.button('Predict'):
         # Create a DataFrame for model input
-        input_data = pd.DataFrame([[TemP, Time_min, PS, BET, PV, C, H, N, O, Biomass_encoded, TP_encoded]],
-                                  columns=['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O', 'raw_material_encoded', 'TP_encoded'])
+        input_data = pd.DataFrame([[TemP, Time_min, PS, BET, PV, C, H, N, O, Biomass_encoded]],
+                                  columns=['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O', 'raw_material_encoded'])
         
         # Make prediction
         prediction = model.predict(input_data)
@@ -205,9 +206,21 @@ with st.expander("Want to predict"):
         st.success(f"Predicted Qm (mg/g): {prediction[0]:.2f}")
 
 st.subheader("Feature Importance")
+
+# Extract feature importances from the model
 importance = model.feature_importances_
 feature_importance = pd.DataFrame({'Feature': X.columns, 'Importance': importance})
+
+# Sort the features by importance in descending order
 feature_importance.sort_values(by='Importance', ascending=False, inplace=True)
-sns.barplot(x='Importance', y='Feature', data=feature_importance)
-st.pyplot()
+
+# Create a bar plot
+plt.figure(figsize=(10, 6))
+sns.barplot(x='Importance', y='Feature', data=feature_importance, palette="viridis")
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('Features')
+
+# Display the plot in Streamlit
+st.pyplot(plt)
 
