@@ -186,20 +186,28 @@ with st.expander("Want to predict"):
     H = st.number_input('Enter Hydrogen content (H)', value=0.0)
     N = st.number_input('Enter Nitrogen content (N)', value=0.0)
     O = st.number_input('Enter Oxygen content (O)', value=0.0)
-    Biomass_encoded = st.number_input('Enter Biomass', value=0.0)
-    TP_encoded = st.number_input('Enter Type of Pollutant', value=0.0)
+    Biomass_encoded = st.number_input('Enter Biomass (Encoded)', value=0.0)
+    TP_encoded = st.number_input('Enter Type of Pollutant (TP Encoded)', value=0.0)
+    
+    # Model loaded from RandomizedSearchCV
     model = random_search_xgb.best_estimator_
+    
     # Prediction button
     if st.button('Predict'):
         # Create a DataFrame for model input
+        input_data = pd.DataFrame([[TemP, Time_min, PS, BET, PV, C, H, N, O, Biomass_encoded, TP_encoded]],
+                                  columns=['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O', 'raw_material_encoded', 'TP_encoded'])
         
-         input_data = pd.DataFrame([[TemP, Time_min, PS, BET, PV, C, H, N, O, Biomass_encoded]],
-                          columns=['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O', 'raw_material_encoded'])
-
-                                  
-    
-        # Make prediction using the Random Forest model
+        # Make prediction
         prediction = model.predict(input_data)
-    
-        # Display prediction
-        st.success(f'Predicted Pharmaceutical Removal Efficiency (Qm): {prediction} mg/g')
+        
+        # Display the prediction
+        st.success(f"Predicted Qm (mg/g): {prediction[0]:.2f}")
+
+st.subheader("Feature Importance")
+importance = model.feature_importances_
+feature_importance = pd.DataFrame({'Feature': X.columns, 'Importance': importance})
+feature_importance.sort_values(by='Importance', ascending=False, inplace=True)
+sns.barplot(x='Importance', y='Feature', data=feature_importance)
+st.pyplot()
+
