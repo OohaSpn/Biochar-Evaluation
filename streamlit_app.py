@@ -27,7 +27,7 @@ st.info('''
 # Data Display
 with st.expander('Data'):
     st.write('**Raw Data**')
-    df = pd.read_csv("https://raw.githubusercontent.com/OohaSpn/Biochar-Analysis/refs/heads/main/Updated_dataset.csv",  usecols=lambda column: column != 'Unnamed: 0')
+    df = pd.read_csv("Updated_dataset.csv")
     st.dataframe(df)
 
     st.write('**Numeric Columns**')
