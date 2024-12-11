@@ -1,12 +1,8 @@
 streamlit
 pandas
-numpy>=1.22,<1.26
-scikit-learn>=1.2,<1.4
+numpy
+scikit-learn
 matplotlib
 seaborn
 openpyxl
-xgboost>=1.6,<2.0
-scipy
-joblib
-plotly
-pillow
+xgboost
