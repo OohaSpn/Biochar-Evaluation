@@ -27,8 +27,7 @@ st.info('''
 # Data Display
 with st.expander('Data'):
     st.write('**Raw Data**')
-    df = pd.read_csv("Updated_dataset.csv")
-    df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+    df = pd.read_csv("https://raw.githubusercontent.com/OohaSpn/Biochar-Analysis/refs/heads/main/Updated_dataset.csv",  usecols=lambda column: column != 'Unnamed: 0')
     st.dataframe(df)
 
     st.write('**Numeric Columns**')
@@ -47,6 +46,24 @@ with st.expander('Data'):
     y_raw = df['Qm (mg/g)']
     st.write(y_raw)
 
+# Sidebar Inputs
+with st.sidebar:
+    st.header('Input feature For Biomass')
+    raw_material = st.selectbox('Select Raw Material', df['raw_material'].unique())
+
+    st.header('Input feature for Type of Pollutant')
+    tp_value = st.selectbox('Select TP', df['TP'].unique())
+
+# Filtered Data
+filtered_df_biomass = df[df['raw_material'] == raw_material]
+filtered_df_tp = df[df['TP'] == tp_value]
+
+with st.expander("Filtered Data"):
+    st.write(f"Filtered data for raw_material: **{raw_material}**")
+    st.dataframe(filtered_df_biomass)
+
+    st.write(f"Filtered data for TP: **{tp_value}**")
+    st.dataframe(filtered_df_tp)
 
 # Data Visualizations
 with st.expander("Data Visualizations"):
@@ -98,47 +115,9 @@ with st.expander("Data Visualizations"):
 
    # Preprocessing the Data
     label_encoder = LabelEncoder()
-    df['raw_material_encoded'] = label_encoder.fit_transform(df['raw_material'])
-    df['TP_encoded'] = label_encoder.fit_transform(df['TP'])
-    # Create a dictionary of raw_material and its encoded values
-    raw_material_mapping = dict(zip(df['raw_material'], df['raw_material_encoded']))
-    tp_mapping = dict(zip(df['TP'], df['TP_encoded']))
-
-# Sidebar Inputs for Biomass
-with st.sidebar:
-    st.header('Input Feature for Biomass')
-    # Create options like 'paper: 18'
-    raw_material_options = [f"{material}: {code}" for material, code in raw_material_mapping.items()]
-    selected_option = st.selectbox('Select Raw Material', raw_material_options)
-    # Extract the raw material name from the selected option
-    raw_material_selected = selected_option.split(': ')[0]  # Get the raw material name
-    raw_material_encoded = int(selected_option.split(': ')[1])  # Get the encoded value
-    st.write(f"You selected: {selected_option} (Encoded: {raw_material_encoded})")
-
-    # Create options like 'Pollutant1: 1'
-    tp_options = [f"{tp}: {code}" for tp, code in tp_mapping.items()]
+    df['raw_material'] = label_encoder.fit_transform(df['raw_material'])
     
-    # Display the selectbox
-    selected_tp = st.selectbox('Select Type of Pollutant (TP)', tp_options)
-    
-    # Extract TP name and encoded value
-    if selected_tp:
-        tp_selected = selected_tp.split(': ')[0]  # Get the pollutant name
-        tp_encoded = int(selected_tp.split(': ')[1])  # Get the encoded value
-    
-        # Display selected value
-        st.write(f"You selected: {selected_tp} (Encoded: {tp_encoded})")
-
-# Filtered Data based on selections
-filtered_df_biomass = df[df['raw_material'] == raw_material_selected]
-filtered_df_tp = df[df['TP'] == tp_selected]
-
-with st.expander("Filtered Data"):
-    st.write(f"Filtered data for raw material: **{raw_material_selected}**")
-    st.dataframe(filtered_df_biomass)
-    st.write(f"Filtered data for TP: **{tp_selected}**")
-    st.dataframe(filtered_df_tp)
-    X = df.drop(columns=['Qm (mg/g)', 'TP', 'raw_material', 'TP_encoded'])  # Drop target column
+    X = df.drop(columns=['Qm (mg/g)', 'TP'])  # Drop target column
     y = df['Qm (mg/g)']  # Target column
 
 # Model Training
@@ -147,7 +126,7 @@ with st.expander("Model Training"):
     mape_scorer = make_scorer(mean_absolute_percentage_error, greater_is_better=False)
     # Set up K-Fold cross-validation and grid search parameters
     k_folds = KFold(n_splits=5)
-    xgb_reg = XGBRegressor()
+    xgb_reg = XGBRegressor(enable_categorical=True)
     param_xgb = {
     'n_estimators': [100, 200, 300, 400, 500],
     'learning_rate': [0.001, 0.01, 0.05, 0.1, 0.2],
@@ -158,7 +137,6 @@ with st.expander("Model Training"):
     'reg_alpha': [0, 0.1, 0.2, 0.3, 0.4],
     'reg_lambda': [0, 0.1, 0.2, 0.3, 0.4]
     }
-
     random_search_xgb = RandomizedSearchCV(xgb_reg, param_distributions=param_xgb, n_iter=50, scoring='r2', cv=5, verbose=1, random_state=42, n_jobs=-1)
     random_search_xgb.fit(X, y)
     best_params_xgb = random_search_xgb.best_params_
@@ -187,40 +165,19 @@ with st.expander("Want to predict"):
     H = st.number_input('Enter Hydrogen content (H)', value=0.0)
     N = st.number_input('Enter Nitrogen content (N)', value=0.0)
     O = st.number_input('Enter Oxygen content (O)', value=0.0)
-    Biomass_encoded = st.number_input('Enter Biomass (Encoded)', value=0.0)
-    TP_encoded = st.number_input('Enter Type of Pollutant (TP Encoded)', value=0.0)
-    
-    # Model loaded from RandomizedSearchCV
+    Biomass_encoded = st.number_input('Enter Biomass', value=0.0)
     model = random_search_xgb.best_estimator_
-    
     # Prediction button
     if st.button('Predict'):
         # Create a DataFrame for model input
+        
         input_data = pd.DataFrame([[TemP, Time_min, PS, BET, PV, C, H, N, O, Biomass_encoded]],
-                                  columns=['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O', 'raw_material_encoded'])
-        
-        # Make prediction
+                          columns=['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O', 'raw_material'])
+
+                                  
+    
+        # Make prediction using the Random Forest model
         prediction = model.predict(input_data)
-        
-        # Display the prediction
-        st.success(f"Predicted Qm (mg/g): {prediction[0]:.2f}")
-
-st.subheader("Feature Importance")
-
-# Extract feature importances from the model
-importance = model.feature_importances_
-feature_importance = pd.DataFrame({'Feature': X.columns, 'Importance': importance})
-
-# Sort the features by importance in descending order
-feature_importance.sort_values(by='Importance', ascending=False, inplace=True)
-
-# Create a bar plot
-plt.figure(figsize=(10, 6))
-sns.barplot(x='Importance', y='Feature', data=feature_importance, palette="viridis")
-plt.title('Feature Importance')
-plt.xlabel('Importance')
-plt.ylabel('Features')
-
-# Display the plot in Streamlit
-st.pyplot(plt)
-
+    
+        # Display prediction
+        st.success(f'Predicted Pharmaceutical Removal Efficiency (Qm): {prediction} mg/g')
