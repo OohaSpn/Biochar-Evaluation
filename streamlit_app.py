@@ -157,8 +157,8 @@ with st.expander("Model Training"):
 # K-Fold Cross-Validation with Best Model
 with st.expander("K-Fold Cross-Validation Results"):
     st.write("Evaluating model performance with K-Fold cross-validation.")
-    kfold_xgb_mape = cross_val_score(random_search_xgb.best_estimator_, X, y.values.ravel(), cv = k_folds, scoring= mape_scorer) * -1
-    kfold_xgb_rmse = np.sqrt(cross_val_score(random_search_xgb.best_estimator_, X, y.values.ravel(), cv = k_folds, scoring= "neg_mean_squared_error")*-1)
+    kfold_xgb_mape = cross_val_score(grid_search_xgb.best_estimator_, X, y.values.ravel(), cv = k_folds, scoring= mape_scorer) * -1
+    kfold_xgb_rmse = np.sqrt(cross_val_score(grid_search_xgb.best_estimator_, X, y.values.ravel(), cv = k_folds, scoring= "neg_mean_squared_error")*-1)
     st.write(f"k-fold MAPE score: {np.mean(kfold_xgb_mape)}")
     st.write(f"k-fold RMSE score: {np.mean(kfold_xgb_rmse)}")
 
