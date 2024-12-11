@@ -120,28 +120,36 @@ with st.expander("Data Visualizations"):
     X = df.drop(columns=['Qm (mg/g)', 'TP'])  # Drop target column
     y = df['Qm (mg/g)']  # Target column
 
-# Model Training
 with st.expander("Model Training"):
-    st.write("Training a XGBoost Regressor model with GridSearchCV for hyperparameter tuning.")
+    st.write("Training an XGBoost Regressor model with RandomizedSearchCV for hyperparameter tuning.")
+    
     mape_scorer = make_scorer(mean_absolute_percentage_error, greater_is_better=False)
+    
     # Set up K-Fold cross-validation and grid search parameters
     k_folds = KFold(n_splits=5)
-    xgb_reg = XGBRegressor(enable_categorical=True)
+    xgb_reg = XGBRegressor()  # Removed enable_categorical=True for compatibility
+    
     param_xgb = {
-    'n_estimators': [100, 200, 300, 400, 500],
-    'learning_rate': [0.001, 0.01, 0.05, 0.1, 0.2],
-    'max_depth': [3, 4, 5, 6, 7],
-    'subsample': [0.6, 0.7, 0.8, 0.9, 1.0],
-    'colsample_bytree': [0.6, 0.7, 0.8, 0.9, 1.0],
-    'gamma': [0, 0.1, 0.2, 0.3, 0.4],
-    'reg_alpha': [0, 0.1, 0.2, 0.3, 0.4],
-    'reg_lambda': [0, 0.1, 0.2, 0.3, 0.4]
+        'n_estimators': [100, 200, 300, 400, 500],
+        'learning_rate': [0.001, 0.01, 0.05, 0.1, 0.2],
+        'max_depth': [3, 4, 5, 6, 7],
+        'subsample': [0.6, 0.7, 0.8, 0.9, 1.0],
+        'colsample_bytree': [0.6, 0.7, 0.8, 0.9, 1.0],
+        'gamma': [0, 0.1, 0.2, 0.3, 0.4],
+        'reg_alpha': [0, 0.1, 0.2, 0.3, 0.4],
+        'reg_lambda': [0, 0.1, 0.2, 0.3, 0.4]
     }
-    random_search_xgb = RandomizedSearchCV(xgb_reg, param_distributions=param_xgb, n_iter=50, scoring='r2', cv=5, verbose=1, random_state=42, n_jobs=-1)
-    random_search_xgb.fit(X, y)
-    best_params_xgb = random_search_xgb.best_params_
-    st.write("Initial Parameters for Tuning:", param_xgb)
-    st.write("Best Parameters:", best_params_xgb)
+
+    try:
+        random_search_xgb = RandomizedSearchCV(xgb_reg, param_distributions=param_xgb, n_iter=50, scoring='r2', cv=k_folds, verbose=1, random_state=42, n_jobs=-1)
+        random_search_xgb.fit(X, y)  # X and y should be predefined datasets
+        best_params_xgb = random_search_xgb.best_params_
+        
+        st.write("Initial Parameters for Tuning:", param_xgb)
+        st.write("Best Parameters:", best_params_xgb)
+    
+    except Exception as e:
+        st.error(f"An error occurred during model training: {e}")
        
 
    
