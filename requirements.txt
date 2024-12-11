@@ -1,8 +1,8 @@
 streamlit
 pandas
 numpy
-scikit-learn>=1.2,<1.4
+scikit-learn
 matplotlib
 seaborn
 openpyxl
-xgboost>=1.6,<2.0
+xgboost
