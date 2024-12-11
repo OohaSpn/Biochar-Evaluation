@@ -140,18 +140,12 @@ with st.expander("Model Training"):
         'reg_alpha': [0, 0.1, 0.2, 0.3, 0.4],
         'reg_lambda': [0, 0.1, 0.2, 0.3, 0.4]
     }
-
-    try:
-        grid_search_xgb = GridSearchCV(xgb_reg, param_grid=param_xgb, scoring='r2', cv=k_folds, verbose=1, n_jobs=-1)
-        grid_search_xgb.fit(X, y)  # X and y should be predefined datasets
-        best_params_xgb = grid_search_xgb.best_params_
+    grid_search_xgb = GridSearchCV(xgb_reg, param_grid=param_xgb, scoring='r2', cv=k_folds, verbose=1, n_jobs=-1)
+    grid_search_xgb.fit(X, y)  # X and y should be predefined datasets
+    best_params_xgb = grid_search_xgb.best_params_
         
-        st.write("Initial Parameters for Tuning:", param_xgb)
-        st.write("Best Parameters:", best_params_xgb)
-    
-    except Exception as e:
-        st.error(f"An error occurred during model training: {e}")
-
+    st.write("Initial Parameters for Tuning:", param_xgb)
+    st.write("Best Parameters:", best_params_xgb)
    
 
 # K-Fold Cross-Validation with Best Model
