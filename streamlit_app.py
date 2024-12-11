@@ -120,8 +120,9 @@ with st.expander("Data Visualizations"):
     X = df.drop(columns=['Qm (mg/g)', 'TP'])  # Drop target column
     y = df['Qm (mg/g)']  # Target column
 
+# Model Training
 with st.expander("Model Training"):
-    st.write("Training an XGBoost Regressor model with RandomizedSearchCV for hyperparameter tuning.")
+    st.write("Training an XGBoost Regressor model with GridSearchCV for hyperparameter tuning.")
     
     mape_scorer = make_scorer(mean_absolute_percentage_error, greater_is_better=False)
     
@@ -141,16 +142,15 @@ with st.expander("Model Training"):
     }
 
     try:
-        random_search_xgb = RandomizedSearchCV(xgb_reg, param_distributions=param_xgb, n_iter=50, scoring='r2', cv=k_folds, verbose=1, random_state=42, n_jobs=-1)
-        random_search_xgb.fit(X, y)  # X and y should be predefined datasets
-        best_params_xgb = random_search_xgb.best_params_
+        grid_search_xgb = GridSearchCV(xgb_reg, param_grid=param_xgb, scoring='r2', cv=k_folds, verbose=1, n_jobs=-1)
+        grid_search_xgb.fit(X, y)  # X and y should be predefined datasets
+        best_params_xgb = grid_search_xgb.best_params_
         
         st.write("Initial Parameters for Tuning:", param_xgb)
         st.write("Best Parameters:", best_params_xgb)
     
     except Exception as e:
         st.error(f"An error occurred during model training: {e}")
-       
 
    
 
