@@ -128,7 +128,6 @@ with st.expander("Model Training"):
     # Set up K-Fold cross-validation and grid search parameters
     k_folds = KFold(n_splits=5)
     xgb_reg = XGBRegressor()  # Removed enable_categorical=True for compatibility
-    st.write("hi")
     param_xgb = {
         'n_estimators': [100, 200, 300, 400, 500],
         'learning_rate': [0.001, 0.01, 0.05, 0.1, 0.2],
@@ -140,6 +139,7 @@ with st.expander("Model Training"):
         'reg_lambda': [0, 0.1, 0.2, 0.3, 0.4]
     }
     grid_search_xgb = GridSearchCV(xgb_reg, param_grid=param_xgb, scoring='r2', cv=k_folds, verbose=1, n_jobs=-1)
+    st.write("hi")
     grid_search_xgb.fit(X, y)  # X and y should be predefined datasets
     best_params_xgb = grid_search_xgb.best_params_
         
