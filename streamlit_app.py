@@ -128,7 +128,7 @@ with st.expander("Model Training"):
     # Set up K-Fold cross-validation and grid search parameters
     k_folds = KFold(n_splits=5)
     xgb_reg = XGBRegressor()  # Removed enable_categorical=True for compatibility
-    
+    st.write("hi")
     param_xgb = {
         'n_estimators': [100, 200, 300, 400, 500],
         'learning_rate': [0.001, 0.01, 0.05, 0.1, 0.2],
@@ -167,7 +167,7 @@ with st.expander("Want to predict"):
     N = st.number_input('Enter Nitrogen content (N)', value=0.0)
     O = st.number_input('Enter Oxygen content (O)', value=0.0)
     Biomass_encoded = st.number_input('Enter Biomass', value=0.0)
-    model = random_search_xgb.best_estimator_
+    model = grid_search_xgb.best_estimator_
     # Prediction button
     if st.button('Predict'):
         # Create a DataFrame for model input
