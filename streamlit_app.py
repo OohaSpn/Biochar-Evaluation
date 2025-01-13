@@ -120,61 +120,17 @@ with st.expander("Data Visualizations"):
     X = df.drop(columns=['Qm (mg/g)', 'TP'])  # Drop target column
     y = df['Qm (mg/g)']  # Target column
 
-# Assume X and y are predefined datasets
-
+# Model Training
 with st.expander("Model Training"):
-    st.write("Training an XGBoost Regressor model with GridSearchCV for hyperparameter tuning.")
+    st.write("Training an XGBoost Regressor model.")
     
-    mape_scorer = make_scorer(mean_absolute_percentage_error, greater_is_better=False)
+    # Initialize the XGBRegressor model without hyperparameter tuning
+    xgb_reg = XGBRegressor()
     
-    # Set up K-Fold cross-validation and grid search parameters
-    k_folds = KFold(n_splits=5)
-    xgb_reg = XGBRegressor()  # Base model
+    # Train the model on the dataset X and y (make sure they are defined)
+    xgb_reg.fit(X, y)
 
-    # Define parameter grid for GridSearchCV
-    param_xgb = {
-        'n_estimators': [100, 200, 300],
-        'learning_rate': [0.01, 0.05, 0.1],
-        'max_depth': [3, 5, 7],
-        'subsample': [0.8, 1.0],
-        'colsample_bytree': [0.8, 1.0]
-    }
-
-    grid_search_xgb = GridSearchCV(
-        xgb_reg,
-        param_grid=param_xgb,
-        scoring='r2',
-        cv=k_folds,
-        verbose=1,
-        n_jobs=-1
-    )
-    
-    grid_search_xgb.fit(X, y)  # Train the model
-    best_params_xgb = grid_search_xgb.best_params_
-    st.write(f"Best Parameters: {best_params_xgb}")
-
-# K-Fold Cross-Validation with Best Model
-with st.expander("K-Fold Cross-Validation Results"):
-    st.write("Evaluating model performance with K-Fold cross-validation.")
-    best_model = grid_search_xgb.best_estimator_
-    kfold_xgb_mape = cross_val_score(
-        best_model,
-        X,
-        y.values.ravel(),
-        cv=k_folds,
-        scoring=mape_scorer
-    ) * -1
-    kfold_xgb_rmse = np.sqrt(
-        cross_val_score(
-            best_model,
-            X,
-            y.values.ravel(),
-            cv=k_folds,
-            scoring="neg_mean_squared_error"
-        ) * -1
-    )
-    st.write(f"K-Fold MAPE Score: {np.mean(kfold_xgb_mape):.4f}")
-    st.write(f"K-Fold RMSE Score: {np.mean(kfold_xgb_rmse):.4f}")
+    st.write("Model training completed.")
 
 # User Prediction Section
 with st.expander("Want to predict"):
@@ -189,16 +145,16 @@ with st.expander("Want to predict"):
     N = st.number_input('Enter Nitrogen content (N)', value=0.0)
     O = st.number_input('Enter Oxygen content (O)', value=0.0)
     Biomass_encoded = st.number_input('Enter Biomass', value=0.0)
-
+    
     # Prediction button
     if st.button('Predict'):
         # Create a DataFrame for model input
         input_data = pd.DataFrame([[TemP, Time_min, PS, BET, PV, C, H, N, O, Biomass_encoded]],
                                   columns=['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O', 'raw_material'])
 
-        # Make prediction using the best model
-        prediction = best_model.predict(input_data)
-
+        # Make prediction using the trained XGBRegressor model
+        prediction = xgb_reg.predict(input_data)
+    
         # Display prediction
         st.success(f'Predicted Pharmaceutical Removal Efficiency (Qm): {prediction[0]:.4f} mg/g')
 
