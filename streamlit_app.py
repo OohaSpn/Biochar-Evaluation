@@ -27,7 +27,11 @@ st.info('''
 # Data Display
 with st.expander('Data'):
     st.write('**Raw Data**')
-    df = pd.read_csv("Updated_dataset.csv",  usecols=lambda column: column != 'Unnamed: 0')
+    try:
+    df = pd.read_csv("Updated_dataset.csv", usecols=lambda column: column != 'Unnamed: 0')
+except FileNotFoundError:
+    st.error("Dataset not found. Please upload the file.")
+
     st.dataframe(df)
 
     st.write('**Numeric Columns**')
@@ -119,17 +123,18 @@ with st.expander("Data Visualizations"):
     
     X = df.drop(columns=['Qm (mg/g)', 'TP'])  # Drop target column
     y = df['Qm (mg/g)']  # Target column
-
-# Model Training
+    # Model Training
 with st.expander("Model Training"):
     st.write("Training an XGBoost Regressor model with GridSearchCV for hyperparameter tuning.")
     
+    # Define the scorer and other settings
     mape_scorer = make_scorer(mean_absolute_percentage_error, greater_is_better=False)
-    
+
     # Set up K-Fold cross-validation and grid search parameters
-    k_folds = KFold(n_splits=5)
-    xgb_reg = XGBRegressor()  # Removed enable_categorical=True for compatibility
-    
+    k_folds = KFold(n_splits=5, shuffle=True, random_state=42)
+    xgb_reg = XGBRegressor(objective='reg:squarederror', random_state=42)  # Ensure compatibility
+
+    # Define parameter grid for GridSearchCV
     param_xgb = {
         'n_estimators': [100, 200, 300, 400, 500],
         'learning_rate': [0.001, 0.01, 0.05, 0.1, 0.2],
@@ -140,22 +145,41 @@ with st.expander("Model Training"):
         'reg_alpha': [0, 0.1, 0.2, 0.3, 0.4],
         'reg_lambda': [0, 0.1, 0.2, 0.3, 0.4]
     }
-    grid_search_xgb = GridSearchCV(xgb_reg, param_grid=param_xgb, scoring='r2', cv=k_folds, verbose=1, n_jobs=-1)
-    grid_search_xgb.fit(X, y)  # X and y should be predefined datasets
-    best_params_xgb = grid_search_xgb.best_params_
-        
-    st.write("Initial Parameters for Tuning:", param_xgb)
-    st.write("Best Parameters:", best_params_xgb)
-   
+
+    # Ensure X and y are defined before fitting
+    if 'X' in globals() and 'y' in globals():
+        grid_search_xgb = GridSearchCV(
+            xgb_reg, param_grid=param_xgb, scoring='r2', cv=k_folds, verbose=1, n_jobs=-1
+        )
+        grid_search_xgb.fit(X, y.ravel())  # Ensure y is properly shaped
+
+        # Get best parameters
+        best_params_xgb = grid_search_xgb.best_params_
+
+        st.write("Initial Parameters for Tuning:", param_xgb)
+        st.write("Best Parameters:", best_params_xgb)
+    else:
+        st.error("Dataset (X and y) is not properly loaded or defined!")
 
 # K-Fold Cross-Validation with Best Model
 with st.expander("K-Fold Cross-Validation Results"):
-    st.write("Evaluating model performance with K-Fold cross-validation.")
-    kfold_xgb_mape = cross_val_score(grid_search_xgb.best_estimator_, X, y.values.ravel(), cv = k_folds, scoring= mape_scorer) * -1
-    kfold_xgb_rmse = np.sqrt(cross_val_score(grid_search_xgb.best_estimator_, X, y.values.ravel(), cv = k_folds, scoring= "neg_mean_squared_error")*-1)
-    st.write(f"k-fold MAPE score: {np.mean(kfold_xgb_mape)}")
-    st.write(f"k-fold RMSE score: {np.mean(kfold_xgb_rmse)}")
+    if 'grid_search_xgb' in globals():
+        st.write("Evaluating model performance with K-Fold cross-validation.")
+        
+        kfold_xgb_mape = cross_val_score(
+            grid_search_xgb.best_estimator_, X, y.ravel(), cv=k_folds, scoring=mape_scorer
+        ) * -1
+        kfold_xgb_rmse = np.sqrt(
+            cross_val_score(
+                grid_search_xgb.best_estimator_, X, y.ravel(), cv=k_folds, scoring="neg_mean_squared_error"
+            ) * -1
+        )
+        st.write(f"k-fold MAPE score: {np.mean(kfold_xgb_mape)}")
+        st.write(f"k-fold RMSE score: {np.mean(kfold_xgb_rmse)}")
+    else:
+        st.error("Model has not been trained yet. Please train the model first!")
 
+# Prediction Section
 with st.expander("Want to predict"):
     # User inputs for each feature
     TemP = st.number_input('Enter Temperature (TemP)', value=0.0)
@@ -168,18 +192,84 @@ with st.expander("Want to predict"):
     N = st.number_input('Enter Nitrogen content (N)', value=0.0)
     O = st.number_input('Enter Oxygen content (O)', value=0.0)
     Biomass_encoded = st.number_input('Enter Biomass', value=0.0)
-    model = random_search_xgb.best_estimator_
-    # Prediction button
-    if st.button('Predict'):
-        # Create a DataFrame for model input
+
+    if 'grid_search_xgb' in globals():
+        model = grid_search_xgb.best_estimator_
+
+        # Prediction button
+        if st.button('Predict'):
+            # Create a DataFrame for model input
+            input_data = pd.DataFrame([[TemP, Time_min, PS, BET, PV, C, H, N, O, Biomass_encoded]],
+                                      columns=['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O', 'raw_material'])
+            
+            # Make prediction using the trained model
+            prediction = model.predict(input_data)
+
+            # Display prediction
+            st.success(f'Predicted Pharmaceutical Removal Efficiency (Qm): {prediction[0]:.2f} mg/g')
+    else:
+        st.error("No trained model available for prediction!")
+
+# # Model Training
+# with st.expander("Model Training"):
+#     st.write("Training an XGBoost Regressor model with GridSearchCV for hyperparameter tuning.")
+    
+#     mape_scorer = make_scorer(mean_absolute_percentage_error, greater_is_better=False)
+    
+#     # Set up K-Fold cross-validation and grid search parameters
+#     k_folds = KFold(n_splits=5)
+#     xgb_reg = XGBRegressor()  # Removed enable_categorical=True for compatibility
+    
+#     param_xgb = {
+#         'n_estimators': [100, 200, 300, 400, 500],
+#         'learning_rate': [0.001, 0.01, 0.05, 0.1, 0.2],
+#         'max_depth': [3, 4, 5, 6, 7],
+#         'subsample': [0.6, 0.7, 0.8, 0.9, 1.0],
+#         'colsample_bytree': [0.6, 0.7, 0.8, 0.9, 1.0],
+#         'gamma': [0, 0.1, 0.2, 0.3, 0.4],
+#         'reg_alpha': [0, 0.1, 0.2, 0.3, 0.4],
+#         'reg_lambda': [0, 0.1, 0.2, 0.3, 0.4]
+#     }
+#     grid_search_xgb = GridSearchCV(xgb_reg, param_grid=param_xgb, scoring='r2', cv=k_folds, verbose=1, n_jobs=-1)
+#     grid_search_xgb.fit(X, y)  # X and y should be predefined datasets
+#     best_params_xgb = grid_search_xgb.best_params_
         
-        input_data = pd.DataFrame([[TemP, Time_min, PS, BET, PV, C, H, N, O, Biomass_encoded]],
-                          columns=['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O', 'raw_material'])
+#     st.write("Initial Parameters for Tuning:", param_xgb)
+#     st.write("Best Parameters:", best_params_xgb)
+   
+
+# # K-Fold Cross-Validation with Best Model
+# with st.expander("K-Fold Cross-Validation Results"):
+#     st.write("Evaluating model performance with K-Fold cross-validation.")
+#     kfold_xgb_mape = cross_val_score(grid_search_xgb.best_estimator_, X, y.values.ravel(), cv = k_folds, scoring= mape_scorer) * -1
+#     kfold_xgb_rmse = np.sqrt(cross_val_score(grid_search_xgb.best_estimator_, X, y.values.ravel(), cv = k_folds, scoring= "neg_mean_squared_error")*-1)
+#     st.write(f"k-fold MAPE score: {np.mean(kfold_xgb_mape)}")
+#     st.write(f"k-fold RMSE score: {np.mean(kfold_xgb_rmse)}")
+
+# with st.expander("Want to predict"):
+#     # User inputs for each feature
+#     TemP = st.number_input('Enter Temperature (TemP)', value=0.0)
+#     Time_min = st.number_input('Enter Time (min)', value=0.0)
+#     PS = st.number_input('Enter Particle Size (PS)', value=0.0)
+#     BET = st.number_input('Enter BET Surface Area', value=0.0)
+#     PV = st.number_input('Enter Pore Volume (PV)', value=0.0)
+#     C = st.number_input('Enter Carbon content (C)', value=0.0)
+#     H = st.number_input('Enter Hydrogen content (H)', value=0.0)
+#     N = st.number_input('Enter Nitrogen content (N)', value=0.0)
+#     O = st.number_input('Enter Oxygen content (O)', value=0.0)
+#     Biomass_encoded = st.number_input('Enter Biomass', value=0.0)
+#     model = random_search_xgb.best_estimator_
+#     # Prediction button
+#     if st.button('Predict'):
+#         # Create a DataFrame for model input
+        
+#         input_data = pd.DataFrame([[TemP, Time_min, PS, BET, PV, C, H, N, O, Biomass_encoded]],
+#                           columns=['TemP', 'Time (min)', 'PS', 'BET', 'PV', 'C', 'H', 'N', 'O', 'raw_material'])
 
                                   
     
-        # Make prediction using the Random Forest model
-        prediction = model.predict(input_data)
+#         # Make prediction using the Random Forest model
+#         prediction = model.predict(input_data)
     
-        # Display prediction
-        st.success(f'Predicted Pharmaceutical Removal Efficiency (Qm): {prediction} mg/g')
+#         # Display prediction
+#         st.success(f'Predicted Pharmaceutical Removal Efficiency (Qm): {prediction} mg/g')
