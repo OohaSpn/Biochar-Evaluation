@@ -27,11 +27,7 @@ st.info('''
 # Data Display
 with st.expander('Data'):
     st.write('**Raw Data**')
-    try:
     df = pd.read_csv("Updated_dataset.csv", usecols=lambda column: column != 'Unnamed: 0')
-except FileNotFoundError:
-    st.error("Dataset not found. Please upload the file.")
-
     st.dataframe(df)
 
     st.write('**Numeric Columns**')
